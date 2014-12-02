@@ -6,6 +6,7 @@ public class Hierarchy {
 	private ArrayList<Hierarchy> childrens;
 	private Node node;
 	private double size = 0;
+	private string blabla;
 	
 	public Hierarchy(ArrayList<Hierarchy> childrens, Node node) {
 		super();
