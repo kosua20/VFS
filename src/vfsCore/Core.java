@@ -11,7 +11,7 @@ public class Core {
 	private Hierarchy fullHierarchy;
 	private Hierarchy currentNode;
 	
-	
+	//test
 	public boolean createDisk(String diskPath, int size) {
 		
 		try (RandomAccessFile randomAccessFile = new RandomAccessFile(new File(diskPath), "rw")) {
@@ -42,6 +42,7 @@ public class Core {
 				System.out.println("Error writing file");
 				return false;
 			}
+		
 
 		
 		
