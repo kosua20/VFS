@@ -12,36 +12,39 @@ public class Core {
 	private Hierarchy currentNode;
 	
 	
-	public boolean createDisk(String diskPath, int i) {
+	public boolean createDisk(String diskPath, int size) {
 		
 		try (RandomAccessFile randomAccessFile = new RandomAccessFile(new File(diskPath), "rw")) {
 
 				
+				//randomAccessFile.seek(randomAccessFile.length());
+				randomAccessFile.setLength(size);
 				randomAccessFile.seek(randomAccessFile.length());
-
-				// obtain file channel from the RandomAccessFile
 				try (FileChannel fileChannel = randomAccessFile.getChannel()) {
 
-					ByteBuffer buf = ByteBuffer.allocate(1000);
+					ByteBuffer buf = ByteBuffer.allocate(100);
 					buf.clear();
-					buf.putInt(i);
+					buf.putInt(size);
 
 					buf.flip();
 
 					while (buf.hasRemaining()) {
 						fileChannel.write(buf);
 					}
+					return true;
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.out.println("Error writing file");
+					return false;
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Error writing file");
+				return false;
 			}
 
 		
 		
-		return false;
+		//return false;
 	}
 }
