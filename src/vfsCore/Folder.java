@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Folder extends Hierarchy{
+	
+	/**
+	 * StringTokenizer use in methods to split path
+	 */
 	StringTokenizer st;
 	
 	
@@ -27,7 +31,7 @@ public class Folder extends Hierarchy{
 	 * @param path : path must be a string like "/folder1/subfold1/file.extension"
 	 * @throws fileNotFound 
 	 */
-	public Hierarchy foundChild(String path) throws fileNotFound{
+	public Hierarchy findChild(String path) throws fileNotFound{
 		st = new StringTokenizer(path, "/");
 		Hierarchy h1 = this;
 		loopOverToken : while(st.hasMoreTokens()){
@@ -43,6 +47,26 @@ public class Folder extends Hierarchy{
 			throw new fileNotFound("Chemin inexistant");
 		}
 		return h1;
+	}
+	
+	/**
+	 * method to create a folder at a specific path, with a specified name
+	 * @param path : the string of the path
+	 * @param nom : the name of the folder
+	 * @throws fileNotFound : exception if path is not found
+	 * @throws BadPathInstanceException : exception is the path is of wrong instance
+	 */
+	public void createFolderAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException{
+		Hierarchy child = findChild(path);
+		if(child instanceof Folder){
+			child.addChild(new Folder(null, nom));
+		} else {
+			throw new BadPathInstanceException("Attention vous essayer de creer un dossier dans un fichier !");
+		}
+	}
+	
+	public void deleteFolderAtPath(String path){
+		
 	}
 
 }

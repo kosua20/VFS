@@ -9,8 +9,15 @@ public class Hierarchy implements Serializable {
 	 * generated serialVersionUID used to make proper serialization
 	 */
 	private static final long serialVersionUID = -8211210286637009700L;
+	/**
+	 * arraylist of children of a hierarchy element
+	 */
 	private ArrayList<Hierarchy> childrens;
+	/**
+	 * name of hierarchy element
+	 */
 	private String name;
+	private Hierarchy parent;
 	
 
 	
@@ -36,7 +43,7 @@ public class Hierarchy implements Serializable {
 		this.name = name;
 	}
 
-
+	
 
 	/**
 	 * Add a child to the hierarchy might be a folder of a file
