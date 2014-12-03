@@ -10,7 +10,7 @@ import java.nio.channels.FileChannel;
 public class Core {
 	private Hierarchy fullHierarchy;
 	private Hierarchy currentNode;
-	private CoreIO cio = new CoreIO();
+	private CoreIO cio;
 	
 	/**
 	 * create a VFS disk at the specified path on the host system, with the specified size for the data partition
@@ -20,12 +20,13 @@ public class Core {
 	 */
 	public boolean createDisk(String diskPath, long size) {
 		size = size * 1000;
+		cio = new CoreIO(diskPath);
 		try (RandomAccessFile randomAccessFile = new RandomAccessFile(new File(diskPath), "rw")) {
 				randomAccessFile.setLength(size);
 				randomAccessFile.seek(randomAccessFile.length());
 				randomAccessFile.writeLong(size);
 				randomAccessFile.close();
-				cio.saveHierarchyToFile(new Folder(null, ""), diskPath);
+				cio.saveHierarchyToFile(new Folder(null, ""));
 				return true;
 			} catch (IOException e) {
 				System.out.println("Error writing file");
@@ -46,8 +47,9 @@ public class Core {
 	 * @return true if the operation is successful
 	 */
 	public boolean openDisk(String filePath) {
+		cio = new CoreIO(filePath);
 		try {
-			fullHierarchy = cio.loadHierarchyTreeFromFile(filePath);
+			fullHierarchy = cio.loadHierarchyTreeFromFile();
 			currentNode = fullHierarchy;
 			System.out.println(currentNode);
 			return true;
@@ -78,13 +80,5 @@ public class Core {
 		
 	}
 	
-	public boolean readFromAdress(long adress){
-		
-		return false;
-	}
 	
-	public long writeToDisk(File file){
-		
-		return -1;
-	}
 }

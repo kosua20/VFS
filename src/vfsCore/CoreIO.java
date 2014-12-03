@@ -3,7 +3,9 @@ package vfsCore;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,7 +21,22 @@ import java.io.RandomAccessFile;
  *
  */
 public class CoreIO {
+	private String diskName;
 	
+	
+	public CoreIO(String diskName) {
+		super();
+		this.diskName = diskName;
+	}
+
+	protected String getDiskName() {
+		return diskName;
+	}
+
+	protected void setDiskName(String diskName) {
+		this.diskName = diskName;
+	}
+
 	/**
 	 * converts the Hierarchy to a byte array
 	 * Here we want to add the serialized version of the hierarchy to an already existing file (the .dsk), at an arbitrary position. 
@@ -72,14 +89,13 @@ public class CoreIO {
 	/**
 	 * Allows us to save a hierarchy object in a .dsk file, without damaging the data already stored in it.
 	 * @param h1 the hierarchy we want to save in the .dsk file
-	 * @param filePath the position of the .dsk file in the host system
 	 * @return true if success, false in any other case.
 	 * @throws CoreIOException 
 	 * @throws fileNotFound 
 	 */
-	public boolean saveHierarchyToFile(Hierarchy h1, String filePath) throws CoreIOException, fileNotFound{
+	public boolean saveHierarchyToFile(Hierarchy h1) throws CoreIOException, fileNotFound{
 		//RandomAccessFile allows us to arbitrarily move a pointer in the content of the file
-		try (RandomAccessFile rAF = new RandomAccessFile(new File(filePath), "rw")) {
+		try (RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw")) {
 			//We read the size of the data partition (stored as a long on 8 bytes, at the end of the file)
 			rAF.seek(rAF.length()-8);
 			long startingPosition = rAF.readLong();
@@ -91,6 +107,7 @@ public class CoreIO {
 			rAF.writeLong(startingPosition);
 			//We truncate the file, thus deleting any previously stored serialization
 			rAF.setLength(rAF.getFilePointer());
+			rAF.close();
 			return true;
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("");
@@ -101,12 +118,11 @@ public class CoreIO {
 	
 	/**
 	 * loads a Hierarchy from a .dsk file (VFS file on the host system)
-	 * @param filePath the path of the .dsk file
 	 * @return the hierarchy stored in the VFS, as a Hierarchy object
 	 * @throws fileNotFound, CoreIOException 
 	 */
-	public Hierarchy loadHierarchyTreeFromFile(String filePath) throws fileNotFound, CoreIOException{
-		try (RandomAccessFile rAF = new RandomAccessFile(new File(filePath), "r")) {
+	public Hierarchy loadHierarchyTreeFromFile() throws fileNotFound, CoreIOException{
+		try (RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r")) {
 			//Reading the size of the data partition
 			rAF.seek(rAF.length()-8);
 			long startingPosition = rAF.readLong();
@@ -120,6 +136,7 @@ public class CoreIO {
 			rAF.read(hierarchyBytes);
 			//Convert the byte array to a Hierarchy object, and returning it
 			Hierarchy h1 = getHierarchyFromBytes(hierarchyBytes);
+			rAF.close();
 			return h1;
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("");
@@ -127,5 +144,73 @@ public class CoreIO {
 			throw new CoreIOException("Import error");
 		}
 		
+	}
+	
+public boolean readFromAdress(long adress, String destination){
+	try {
+		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+		File exportFile = new File(destination);
+		FileOutputStream fOS = new FileOutputStream(exportFile); 
+	    long position = adress;
+		while (position != -1){
+			rAF.seek(position*(1024+8+1));
+			byte[] store = new byte[1024];
+			rAF.read(store);
+			fOS.write(store);
+			position = rAF.readLong();
+		}
+		rAF.close();
+		fOS.close();
+		return true;
+		
+	} catch (FileNotFoundException e) {
+		System.out.println("Impossible de lire le disque");
+		return false;
+	} catch (IOException e) {
+		return false;
+	}
+	}
+	
+	public long writeToDisk(File file) throws IOException{
+		long firstAdress = -1;
+		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+		
+		
+		FileInputStream fIS = new FileInputStream(file);
+		byte[] readTemp = new byte[1024];
+		
+		long currentAdress=getNextEmptyBlockStartingFrom(0, rAF);
+		
+		int i = 0;
+		//Loop
+		while (i*1024 <= file.length()){
+		
+		long nextAdress=getNextEmptyBlockStartingFrom(currentAdress, rAF);
+		fIS.read(readTemp);
+		rAF.write(readTemp);
+		nextAdress = getNextEmptyBlockStartingFrom(currentAdress+1, rAF);
+		
+	
+		rAF.writeLong(nextAdress);
+		//ecrire dirty 1
+		rAF.write(1);
+		currentAdress = nextAdress;
+		i++;
+		}
+		
+		
+		return firstAdress;
+	}
+	
+	public long getNextEmptyBlockStartingFrom(long adress, RandomAccessFile rAF) throws IOException{
+		long i = adress;
+		int dirty = 1;
+		while (dirty == 1){
+			
+			rAF.seek(i*(1024 + 8));
+			dirty = rAF.read();
+			i++;
+		}
+		return i--;
 	}
 }
