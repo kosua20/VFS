@@ -77,4 +77,14 @@ public class Core {
 		}
 		
 	}
+	
+	public boolean readFromAdress(long adress){
+		
+		return false;
+	}
+	
+	public long writeToDisk(File file){
+		
+		return -1;
+	}
 }

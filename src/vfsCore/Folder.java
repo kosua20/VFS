@@ -35,12 +35,13 @@ public class Folder extends Hierarchy{
 		st = new StringTokenizer(path, "/");
 		Hierarchy h1 = this;
 		loopOverToken : while(st.hasMoreTokens()){
+			String currentItem = st.nextToken();
 			for(Hierarchy child : h1.getChildrens())
 			{	
-				if(st.nextToken().equalsIgnoreCase(child.getName()))
+				
+				if(currentItem.equalsIgnoreCase(child.getName()))
 				{
 					h1=child;
-					st.nextToken();
 					continue loopOverToken;
 				}
 			}
