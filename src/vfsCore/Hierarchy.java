@@ -50,6 +50,9 @@ public class Hierarchy implements Serializable {
 	 * @param newChild
 	 */
 	public void addChild(Hierarchy newChild){
+		if (this.childrens == null){
+			this.childrens = new ArrayList<Hierarchy>();
+		}
 		this.childrens.add(newChild);
 		//updateSize();
 	}

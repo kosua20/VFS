@@ -146,71 +146,82 @@ public class CoreIO {
 		
 	}
 	
-public boolean readFromAdress(long adress, String destination){
-	try {
-		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
-		File exportFile = new File(destination);
-		FileOutputStream fOS = new FileOutputStream(exportFile); 
-	    long position = adress;
-		while (position != -1){
-			rAF.seek(position*(1024+8+1));
-			byte[] store = new byte[1024];
-			rAF.read(store);
-			fOS.write(store);
-			position = rAF.readLong();
+	public boolean readFromAdress(long adress, String destination){
+		try {
+			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+			File exportFile = new File(destination);
+			FileOutputStream fOS = new FileOutputStream(exportFile); 
+			long position = adress;
+			while (position != -1){
+				rAF.seek(position*(1024+8+1));
+				byte[] store = new byte[1024];
+				rAF.read(store);
+				fOS.write(store);
+				position = rAF.readLong();
+			}
+			rAF.close();
+			fOS.close();
+			return true;
+		} catch (FileNotFoundException e) {
+			System.out.println("Impossible de lire le disque");
+			return false;
+		} catch (IOException e) {
+			return false;
 		}
-		rAF.close();
-		fOS.close();
-		return true;
-		
-	} catch (FileNotFoundException e) {
-		System.out.println("Impossible de lire le disque");
-		return false;
-	} catch (IOException e) {
-		return false;
-	}
 	}
 	
 	public long writeToDisk(File file) throws IOException{
 		long firstAdress = -1;
-		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
-		
-		
+		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
 		FileInputStream fIS = new FileInputStream(file);
 		byte[] readTemp = new byte[1024];
-		
 		long currentAdress=getNextEmptyBlockStartingFrom(0, rAF);
-		
+		System.out.println(currentAdress);
+		firstAdress = currentAdress;
 		int i = 0;
 		//Loop
-		while (i*1024 <= file.length()){
-		
-		long nextAdress=getNextEmptyBlockStartingFrom(currentAdress, rAF);
+		if (file.length()>1024){
+		while (i*1024 < file.length()){
+			
+			rAF.seek(currentAdress * (1024 + 8 +1));
+			
+			fIS.read(readTemp);
+			
+			rAF.write(readTemp);
+			
+			long nextAdress=getNextEmptyBlockStartingFrom(currentAdress+1, rAF);
+			rAF.writeLong(nextAdress);
+			//ecrire dirty 1
+			rAF.write(1);
+			currentAdress = nextAdress;
+			i++;
+		}
+		}
+		//Last kilobyte of the file
+		rAF.seek(currentAdress * (1024 + 8+1));
+		readTemp = new byte[1024];
 		fIS.read(readTemp);
 		rAF.write(readTemp);
-		nextAdress = getNextEmptyBlockStartingFrom(currentAdress+1, rAF);
-		
-	
-		rAF.writeLong(nextAdress);
+		rAF.writeLong(-1);
 		//ecrire dirty 1
 		rAF.write(1);
-		currentAdress = nextAdress;
-		i++;
-		}
-		
-		
+		//The file is now completely written
+		rAF.close();
+		fIS.close();
+		//We return the address of the first block of the file
 		return firstAdress;
 	}
 	
 	public long getNextEmptyBlockStartingFrom(long adress, RandomAccessFile rAF) throws IOException{
 		long i = adress;
 		int dirty = 1;
-		while (dirty == 1){
-			
-			rAF.seek(i*(1024 + 8));
+		//TODO we need to check for the end of the file, to be sure not to overflow
+		while ((dirty != 0)){
+			rAF.seek(i*(1024 + 8+1));
 			dirty = rAF.read();
 			i++;
 		}
-		return i--;
+		
+		return i-1;
 	}
 }
