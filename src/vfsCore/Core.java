@@ -90,11 +90,10 @@ public class Core {
 					//We import it
 					vfsCore.File hFile = importFile(fileToAdd, VFSPath);
 					//For now, we add it to the root
-					
 					fullHierarchy.addChild(hFile);
-					
+					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException e) {
+				} catch (IOException | CoreIOException | fileNotFound e) {
 					System.out.println("Error importing the file");
 					return false;
 				}
@@ -105,8 +104,9 @@ public class Core {
 					vfsCore.Folder hFolder = importFolder(fileToAdd);
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
+					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException e) {
+				} catch (IOException | CoreIOException | fileNotFound e) {
 					System.out.println("Error importing the folder");
 					return false;
 				}
@@ -117,14 +117,14 @@ public class Core {
 		}
 	}
 	
-	public vfsCore.File importFile(File fileToAdd, String name) throws IOException{
+	public vfsCore.File importFile(File fileToAdd, String name) throws IOException, CoreIOException{
 		//Here check against the remaining space fileToAdd.length();
 		long address = cio.writeToDisk(fileToAdd);
 		vfsCore.File hFile = new vfsCore.File(name, address, fileToAdd.length());
 		return hFile;
 	}
 	
-	public Folder importFolder(File folderToAdd) throws IOException{
+	public Folder importFolder(File folderToAdd) throws IOException, CoreIOException{
 		Folder folder1 = new Folder(new ArrayList<Hierarchy>(), folderToAdd.getName());
 		//Here check sizeOfFolder(folderToAdd) against available space
 		for(File file1:folderToAdd.listFiles()){
@@ -134,17 +134,13 @@ public class Core {
 				folder1.addChild(importFolder(file1));
 			}
 	    }
+		
 		return folder1;
 	}
 	
-	/**
-	 * Returns the size of a folder, recursively browsing its sub-folders and files
-	 * @param folder the folder we want to know the size of
-	 * @return the size of the folder
-	 */
-	
 	public boolean exportElement(String VFSPath, String homePath){
 		try {
+			
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
 				exportFile((vfsCore.File)origin, homePath);
@@ -154,15 +150,20 @@ public class Core {
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
 		}
-		return false;
-		
-		
+		return false;	
 	}
 	
 	public boolean exportFile(vfsCore.File file, String destination){
-		return cio.readFromAdress(file.getAddress(), destination);
+		try {
+			return cio.readFromAdress(file.getAddress(), destination, file.getSize());
+		} catch (fileNotFound e) {
+			System.out.println("Fichier non trouvé");
+			return false;
+		} catch (CoreIOException e) {
+			System.out.println("Error with the coreIO");
+			return false;
+		}
 	}
-	
 	
 	public void exportFolder(Folder folder, String destination){
 		//Creating the folder
@@ -171,14 +172,19 @@ public class Core {
 		//Importing subdirectories and files
 		for(Hierarchy file1:folder.getChildrens()){
 			if (file1 instanceof vfsCore.File){
-				exportFile((vfsCore.File)file1, destination+File.pathSeparator+folder1.getName());
+				exportFile((vfsCore.File)file1, destination+File.separator+folder1.getName());
 			} else {
-				exportFolder((Folder)file1, destination+File.pathSeparator+folder1.getName());
+				exportFolder((Folder)file1, destination+File.separator+folder1.getName());
 			}
 	    }
 		
 	}
 	
+	/**
+	 * Returns the size of a folder, recursively browsing its sub-folders and files
+	 * @param folder the folder we want to know the size of
+	 * @return the size of the folder
+	 */
 	public long sizeOfFolder(File folder){
 		long size = 0;
 		if (folder.exists()){

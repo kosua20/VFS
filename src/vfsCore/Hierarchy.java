@@ -12,7 +12,7 @@ public class Hierarchy implements Serializable {
 	/**
 	 * arraylist of children of a hierarchy element
 	 */
-	private ArrayList<Hierarchy> childrens;
+	private ArrayList<Hierarchy> childrens = new ArrayList<Hierarchy>();
 	/**
 	 * name of hierarchy element
 	 */
