@@ -63,7 +63,7 @@ public class Hierarchy implements Serializable {
 	
 
 	/**
-	 * Add a child to the hierarchy might be a folder of a file
+	 * Add a child to the hierarchy, might be a folder of a file
 	 * @param newChild
 	 */
 	public void addChild(Hierarchy newChild){
@@ -71,7 +71,6 @@ public class Hierarchy implements Serializable {
 			this.childrens = new ArrayList<Hierarchy>();
 		}
 		this.childrens.add(newChild);
-		//updateSize();
 	}
 
 
@@ -133,19 +132,7 @@ public class Hierarchy implements Serializable {
 		this.parent = parent;
 	}
 	
-	/*public double getSize(){
-		//Potential loop, check on tests
-		updateSize();
-		return this.size;
-	}*/
 	
-	/*public void updateSize() {
-		double tempSize = 0;
-		for(Hierarchy child:childrens){
-			tempSize = tempSize + child.getSize();
-		}
-		this.size = this.node.getSize() + tempSize;
-	}*/
 	
 	
 	
@@ -154,14 +141,12 @@ public class Hierarchy implements Serializable {
 	/**
 	 * method to go to a path
 	 * will be used in every method that need to access a specific directory or file in the hierarchy
-	 * @param path : path must be a string like "/folder1/subfold1/file.extension"
+	 * @param path : path must be a string like "/folder1/subfold1/file.extension" 
 	 * @throws fileNotFound 
 	 */
 	public Hierarchy findChild(String path) throws fileNotFound{
-		StringTokenizer st;
-
-		st = new StringTokenizer(path, "/");
-		Hierarchy h1 = null;
+		StringTokenizer st  = new StringTokenizer(path, "/");
+		Hierarchy h1 = this;
 		loopOverToken : while(st.hasMoreTokens()){
 			if (h1.getChildrens() == null){
 				h1.setChildrens(new ArrayList<Hierarchy>());
@@ -260,7 +245,7 @@ public class Hierarchy implements Serializable {
 	 */
 	public void createFileAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException{
 		Hierarchy child = findChild(path);
-		if(child instanceof File){
+		if(child instanceof Folder){
 			child.addChild(new File(nom, child));
 		} else {
 			throw new BadPathInstanceException("Attention vous creer un ficher");

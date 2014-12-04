@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class Core {
 	private Hierarchy fullHierarchy;
-	private Hierarchy currentNode;
+	private Hierarchy currentHierarchy;
 	private CoreIO cio;
 	
 	/**
@@ -28,7 +28,7 @@ public class Core {
 				randomAccessFile.seek(randomAccessFile.length());
 				randomAccessFile.writeLong(size);
 				randomAccessFile.close();
-				cio.saveHierarchyToFile(new Folder(null, ""));
+				cio.saveHierarchyToFile(new Folder(null, "", null));
 				return true;
 			} catch (IOException e) {
 				System.out.println("Error writing file");
@@ -52,7 +52,7 @@ public class Core {
 		cio = new CoreIO(filePath);
 		try {
 			fullHierarchy = cio.loadHierarchyTreeFromFile();
-			currentNode = fullHierarchy;
+			currentHierarchy = fullHierarchy;
 			return true;
 		} catch (CoreIOException e) {
 			System.out.println("Error encountered by CoreIO");
@@ -108,7 +108,7 @@ public class Core {
 				//It's a folder
 				try {
 					//We import it
-					vfsCore.Folder hFolder = importFolder(fileToAdd);
+					vfsCore.Folder hFolder = importFolder(fileToAdd, VFSPath);
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
 					//And we save the modified Hierarchy
@@ -149,15 +149,15 @@ public class Core {
 	 * @throws IOException
 	 * @throws CoreIOException
 	 */
-	public Folder importFolder(File folderToAdd) throws IOException, CoreIOException{
-		Folder folder1 = new Folder(new ArrayList<Hierarchy>(), folderToAdd.getName(), fullHierarchy);
+	public Folder importFolder(File folderToAdd, String name) throws IOException, CoreIOException{
+		Folder folder1 = new Folder(new ArrayList<Hierarchy>(), name, fullHierarchy);
 		//Here check sizeOfFolder(folderToAdd) against available space
 		//We recursively browse the directory and its files & sub-directories
 		for(File file1:folderToAdd.listFiles()){
 			if (file1.isFile()){
 				folder1.addChild(importFile(file1, file1.getName()));
 			} else {
-				folder1.addChild(importFolder(file1));
+				folder1.addChild(importFolder(file1, file1.getName()));
 			}
 	    }
 		return folder1;
@@ -225,26 +225,4 @@ public class Core {
 			}
 	    }
 	}
-	
-	/**
-	 * Returns the size of a folder, recursively browsing its sub-folders and files, on the host file system
-	 * @param folder the folder we want to know the size of
-	 * @return the size of the folder
-	 */
-	public long sizeOfFolder(File folder){
-		long size = 0;
-		if (folder.exists()){
-			for(File file1:folder.listFiles()){
-				if (file1.isFile()){
-					size = size + file1.length();
-				} else {
-					size = size + sizeOfFolder(file1);
-				}
-		    }
-		}
-		return size;
-	}
-	
-	
-	
 }

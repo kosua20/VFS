@@ -9,13 +9,14 @@ public class MainTests {
 		/*c.deleteDisk("test.dsk");
 		c.createDisk("test.dsk", 23000);
 		c.openDisk("test.dsk");
-		//c.importElement("file 2 é.pdf", "file 2 é.pdf");
+		
 		c.importElement("truc","truc2");*/
 		
-		
+		/*
 		c.openDisk("test.dsk");
-		//c.exportElement("file 2 é.pdf","truc.pdf");
-		c.exportElement("truc", "truc3");
+		c.importElement("Planning NDT-soirée.pdf", "file 2 é.pdf");
+		c.exportElement("file 2 é.pdf","/testp/truc.pdf");
+		c.exportElement("truc", "truc3");*/
 	}
 
 }

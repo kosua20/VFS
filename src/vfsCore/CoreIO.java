@@ -35,6 +35,25 @@ public class CoreIO {
 	protected void setDiskName(String diskName) {
 		this.diskName = diskName;
 	}
+	
+	/**
+	 * Returns the size of a folder, recursively browsing its sub-folders and files, on the host file system
+	 * @param folder the folder we want to know the size of
+	 * @return the size of the folder
+	 */
+	public long sizeOfFolder(File folder){
+		long size = 0;
+		if (folder.exists()){
+			for(File file1:folder.listFiles()){
+				if (file1.isFile()){
+					size = size + file1.length();
+				} else {
+					size = size + sizeOfFolder(file1);
+				}
+		    }
+		}
+		return size;
+	}
 
 	/**
 	 * converts the Hierarchy to a byte array
@@ -146,8 +165,8 @@ public class CoreIO {
 	}
 	
 	/**
-	 * read the content of a file stored on the VFS disk, using the adress of the first 1kB block and following a linked list
-	 * the content is written through a buffer to the work folder on the host file system
+	 * read the content of a file stored on the VFS disk, using the adress of the first 1kB block and following a linked list.
+	 * the content is written through a buffer to the project folder on the host file system
 	 * @param adress the address of the first block of the file
 	 * @param destination the path where to export the file
 	 * @param size size of the file
@@ -162,26 +181,18 @@ public class CoreIO {
 			File exportFile = new File(destination);
 			FileOutputStream fOS = new FileOutputStream(exportFile); 
 			long position = adress;
-			int compteur = 0;
-			int trueSize = 1024;
 			while (position >= 0){
-				
 				rAF.seek(position*(1024+8+1));
-				//System.out.println("1.2");
-				//Small adjustment for the last kB, to avoid writing unnecessary zeroes
-				/*if (((compteur+1)*1024 > size)&&(size - compteur*1024 > 0)&&(size>1024)){
-					trueSize = (int) (1024-((compteur+1)*1024-size));
-				}*/
 				//Buffer
-				byte[] store = new byte[trueSize];
+				byte[] store = new byte[1024];
 				//Read from the VFS, write to the host
 				rAF.read(store);
 				fOS.write(store);
 				//get the next position
 				position = rAF.readLong();
-				compteur++;	
 			}
-			
+			//Truncating the extra zeroes at the end of the file
+			fOS.getChannel().truncate(size);
 			rAF.close();
 			fOS.close();
 			return true;
