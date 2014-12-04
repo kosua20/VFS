@@ -91,8 +91,9 @@ public class Core {
 					vfsCore.File hFile = importFile(fileToAdd, VFSPath);
 					//For now, we add it to the root
 					fullHierarchy.addChild(hFile);
+					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException | CoreIOException e) {
+				} catch (IOException | CoreIOException | fileNotFound e) {
 					System.out.println("Error importing the file");
 					return false;
 				}
@@ -103,8 +104,9 @@ public class Core {
 					vfsCore.Folder hFolder = importFolder(fileToAdd);
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
+					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException | CoreIOException e) {
+				} catch (IOException | CoreIOException | fileNotFound e) {
 					System.out.println("Error importing the folder");
 					return false;
 				}
@@ -132,11 +134,13 @@ public class Core {
 				folder1.addChild(importFolder(file1));
 			}
 	    }
+		
 		return folder1;
 	}
 	
 	public boolean exportElement(String VFSPath, String homePath){
 		try {
+			
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
 				exportFile((vfsCore.File)origin, homePath);

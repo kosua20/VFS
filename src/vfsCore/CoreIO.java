@@ -170,15 +170,19 @@ public class CoreIO {
 				if (((compteur+1)*1024 > size)&&(size - compteur*1024 > 0)&&(size>1024)){
 					trueSize = (int) (1024-((compteur+1)*1024-size));
 				}
+				
 				//Buffer
 				byte[] store = new byte[trueSize];
 				//Read from the VFS, write to the host
 				rAF.read(store);
 				fOS.write(store);
 				//get the next position
+				
 				position = rAF.readLong();
+				
 				compteur++;	
 			}
+			
 			rAF.close();
 			fOS.close();
 			return true;
@@ -234,7 +238,6 @@ public class CoreIO {
 			}
 		}
 		//Last kilobyte of the file, with special treatment
-		System.out.println("Last kB");
 		rAF.seek(currentAdress * (1024 + 8+1));
 		readTemp = new byte[1024];
 		fIS.read(readTemp);

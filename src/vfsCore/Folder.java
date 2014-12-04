@@ -35,6 +35,9 @@ public class Folder extends Hierarchy{
 		st = new StringTokenizer(path, "/");
 		Hierarchy h1 = this;
 		loopOverToken : while(st.hasMoreTokens()){
+			if (h1.getChildrens() == null){
+				h1.setChildrens(new ArrayList<Hierarchy>());
+			}
 			String currentItem = st.nextToken();
 			for(Hierarchy child : h1.getChildrens())
 			{	
@@ -44,9 +47,11 @@ public class Folder extends Hierarchy{
 					h1=child;
 					continue loopOverToken;
 				}
+				
 			}
 			throw new fileNotFound("Chemin inexistant");
 		}
+		
 		return h1;
 	}
 	
