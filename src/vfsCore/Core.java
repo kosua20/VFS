@@ -140,7 +140,6 @@ public class Core {
 	
 	public boolean exportElement(String VFSPath, String homePath){
 		try {
-			
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
 				exportFile((vfsCore.File)origin, homePath);
@@ -155,6 +154,7 @@ public class Core {
 	
 	public boolean exportFile(vfsCore.File file, String destination){
 		try {
+			System.out.println("exporting file" + file.getName());
 			return cio.readFromAdress(file.getAddress(), destination, file.getSize());
 		} catch (fileNotFound e) {
 			System.out.println("Fichier non trouvé");
@@ -167,14 +167,15 @@ public class Core {
 	
 	public void exportFolder(Folder folder, String destination){
 		//Creating the folder
+		System.out.println("exporting folder" + folder.getName());
 		File folder1 = new File(destination);
 		folder1.mkdir();
 		//Importing subdirectories and files
 		for(Hierarchy file1:folder.getChildrens()){
 			if (file1 instanceof vfsCore.File){
-				exportFile((vfsCore.File)file1, destination+File.separator+folder1.getName());
+				exportFile((vfsCore.File)file1, destination+File.separator+file1.getName());
 			} else {
-				exportFolder((Folder)file1, destination+File.separator+folder1.getName());
+				exportFolder((Folder)file1, destination+File.separator+file1.getName());
 			}
 	    }
 		

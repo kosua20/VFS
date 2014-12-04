@@ -158,28 +158,27 @@ public class CoreIO {
 	public boolean readFromAdress(long adress, String destination, long size) throws fileNotFound, CoreIOException{
 		try {
 			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+			System.out.println(destination);
 			File exportFile = new File(destination);
 			FileOutputStream fOS = new FileOutputStream(exportFile); 
 			long position = adress;
 			int compteur = 0;
 			int trueSize = 1024;
-			while (position != -1){
-				//Position on the next block
-				rAF.seek(position*(1024+8+1));
-				//Small adjustment for the last kB, to avoid writing unnecessary zeroes
-				if (((compteur+1)*1024 > size)&&(size - compteur*1024 > 0)&&(size>1024)){
-					trueSize = (int) (1024-((compteur+1)*1024-size));
-				}
+			while (position >= 0){
 				
+				rAF.seek(position*(1024+8+1));
+				//System.out.println("1.2");
+				//Small adjustment for the last kB, to avoid writing unnecessary zeroes
+				/*if (((compteur+1)*1024 > size)&&(size - compteur*1024 > 0)&&(size>1024)){
+					trueSize = (int) (1024-((compteur+1)*1024-size));
+				}*/
 				//Buffer
 				byte[] store = new byte[trueSize];
 				//Read from the VFS, write to the host
 				rAF.read(store);
 				fOS.write(store);
 				//get the next position
-				
 				position = rAF.readLong();
-				
 				compteur++;	
 			}
 			
