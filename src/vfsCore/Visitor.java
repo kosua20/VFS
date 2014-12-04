@@ -1,7 +1,5 @@
 package vfsCore;
 
-
-
 public interface Visitor {
 	public void visit(Hierarchy object);
 	public void visit(Folder folder);

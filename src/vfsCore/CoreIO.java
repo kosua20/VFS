@@ -21,40 +21,25 @@ import java.io.RandomAccessFile;
  *
  */
 public class CoreIO {
+	//ATTRIBUTES, CONSTRUCTOR, GETTERS/SETTERS
 	private String diskName;
-	
 	public CoreIO(String diskName) {
 		super();
 		this.diskName = diskName;
 	}
-
 	protected String getDiskName() {
 		return diskName;
 	}
-
 	protected void setDiskName(String diskName) {
 		this.diskName = diskName;
 	}
 	
-	/**
-	 * Returns the size of a folder, recursively browsing its sub-folders and files, on the host file system
-	 * @param folder the folder we want to know the size of
-	 * @return the size of the folder
-	 */
-	public long sizeOfFolder(File folder){
-		long size = 0;
-		if (folder.exists()){
-			for(File file1:folder.listFiles()){
-				if (file1.isFile()){
-					size = size + file1.length();
-				} else {
-					size = size + sizeOfFolder(file1);
-				}
-		    }
-		}
-		return size;
-	}
-
+	
+	
+	//--------------------------------//
+	//SAVING AND LOADING THE HIERARCHY//
+	//--------------------------------//
+	
 	/**
 	 * converts the Hierarchy to a byte array
 	 * Here we want to add the serialized version of the hierarchy to an already existing file (the .dsk), at an arbitrary position. 
@@ -164,6 +149,13 @@ public class CoreIO {
 		
 	}
 	
+	
+	
+	
+	//-------------------------------------//
+	//READING AND WRITING FILES ON THE DISK//
+	//-------------------------------------//
+	
 	/**
 	 * read the content of a file stored on the VFS disk, using the adress of the first 1kB block and following a linked list.
 	 * the content is written through a buffer to the project folder on the host file system
@@ -262,8 +254,34 @@ public class CoreIO {
 		return firstAdress;
 	}
 	
+	
+	
+	
+	//---------//
+	//UTILITIES//
+	//---------//
+	
 	/**
-	 * get the next empty block of 1kB on the VFS disk file, starting from a specified adress
+	* Returns the size of a folder, recursively browsing its sub-folders and files, on the host file system
+	* @param folder the folder we want to know the size of
+	* @return the size of the folder
+	*/
+	public long sizeOfFolder(File folder){
+		long size = 0;
+		if (folder.exists()){
+			for(File file1:folder.listFiles()){
+				if (file1.isFile()){
+					size = size + file1.length();
+				} else {
+					size = size + sizeOfFolder(file1);
+				}
+		    }
+		}
+		return size;
+	}
+	
+	/**
+	 * gets the next empty block of 1kB on the VFS disk file, starting from a specified adress
 	 * @param adress 
 	 * @param rAF a RandomAccessFile used to arbitrarily browse the file
 	 * @param size the size of the VFS partition, for bounds checking
@@ -283,6 +301,11 @@ public class CoreIO {
 		return i-1;
 	}
 
+	/**
+	 * returns the size of the vfs partition, in bytes
+	 * @return returns the size of the vfs partition, in bytes
+	 * @throws IOException
+	 */
 	public long sizeOfDisk() throws IOException {
 		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
 		//We'll need the size of the partition for safety reason
