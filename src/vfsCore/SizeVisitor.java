@@ -9,8 +9,13 @@ public class SizeVisitor implements Visitor{
 	};
 	
 	public void visit(Folder folder) {
-		for(Hierarchy child:folder.getChildrens()){
-			child.accept(this);
+		
+		if (folder.getChildrens()==null){
+			sizeUsed = sizeUsed+0;
+		} else {
+			for(Hierarchy child:folder.getChildrens()){
+				child.accept(this);
+			}
 		}
 	}
 

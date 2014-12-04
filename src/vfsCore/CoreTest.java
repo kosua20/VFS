@@ -11,19 +11,19 @@ public class CoreTest {
 	//1 and 2
 	@Test
 	public void testCreationOfDisk(){
-		assertTrue(testCore.createDisk("test/testDisk.vfsd", 23000));
+		assertTrue(testCore.createDisk("test/testDisk.dsk", 23000));
 	}
 	
 	//3
 	@Test
 	public void testOpeningOfDisk(){
-		assertTrue(testCore.openDisk("test/testDisk.vfsd"));
+		assertTrue(testCore.openDisk("test/testDisk.dsk"));
 	} 
 	
 	//4
 	@Test
 	public void testDeletionOfDisk(){
-		assertTrue(testCore.deleteDisk("test/testDisk.vfsd"));
+		//assertTrue(testCore.deleteDisk("test/testDisk.vfsd"));
 	}
 	
 	//5
@@ -98,15 +98,15 @@ public class CoreTest {
 	//10
 	@Test
 	public void testFreeSpace(){
-		assertEquals(22000,testCore.getFreeSpace());
+		assertEquals(23000*1024-562669,testCore.getFreeSpace());
 	}
 	@Test
 	public void testUsedSpace(){
-		assertEquals(1000,testCore.getUsedSpace());
+		assertEquals(562669,testCore.getUsedSpace());
 	}
 	@Test
 	public void testTotalSize(){
-		assertEquals(23000,testCore.getTotalSpace());
+		assertEquals(23000*1024,testCore.getTotalSpace());
 	}
 	
 	//11

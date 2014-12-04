@@ -50,7 +50,6 @@ public class CoreIO {
 	 */
 	public byte[] getHierarchyBytes(Hierarchy h1) throws IOException{
 		byte[] hierarchyBytes = null;
-		
 		//We want to get the serialized version of a hierarchy
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream out = new ObjectOutputStream(baos);

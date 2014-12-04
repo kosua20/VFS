@@ -90,6 +90,44 @@ public class Core {
 
 	
 	
+	//-----------------------//
+	//MOVING IN THE HIERARCHY//
+	//-----------------------//
+	
+		public boolean goTo(String path){
+			try {
+				currentHierarchy = currentHierarchy.findChild(path);
+				return true;
+			} catch (fileNotFound e) {
+				System.out.println("Sorry, the folder doesn't exists");
+				return false;
+			}
+		}
+		public void goToParent() {
+			if (currentHierarchy.equals(fullHierarchy)){
+				System.out.println("You already are on the root of the vfs disk");
+			} else {
+				currentHierarchy = currentHierarchy.getParent();
+			}
+		}
+		
+		public boolean list(){
+			String s = "Current: "+currentHierarchy.getName()+"\n";
+			for(Hierarchy child:currentHierarchy.getChildrens()){
+				s = s+"- "+child.getName()+" ";
+				if (child instanceof vfsCore.File){
+					s = s +" f "+((vfsCore.File)child).getSize()+"o";
+				}else {
+					s = s + " F";
+				}
+				s = s+"\n";
+			}
+			System.out.println(s);
+			return true;
+			
+		}
+	
+	
 	//--------------------------------//
 	//IMPORTING AND EXPORTING ELEMENTS//
 	//--------------------------------//
@@ -108,8 +146,13 @@ public class Core {
 		}
 		//Check if the file exists on the host
 		if (fileToAdd.exists()){
-			//If this is a file
 			if (fileToAdd.isFile()){
+				//It's a file
+				//Checking its size against the available space on the vfs disk
+				if (getFreeSpace()<=fileToAdd.length()){
+					System.out.println("Not enough available space !");
+					return false;
+				}
 				try {
 					//We import it
 					vfsCore.File hFile = cie.importFile(fileToAdd, VFSPath);
@@ -124,6 +167,11 @@ public class Core {
 				}
 			} else {
 				//It's a folder
+				//Checking its size against the available space on the vfs disk
+				if (getFreeSpace()<=cio.sizeOfFolder(fileToAdd)){
+					System.out.println("Not enough available space !");
+					return false;
+				}
 				try {
 					//We import it
 					vfsCore.Folder hFolder = cie.importFolder(fileToAdd, VFSPath,fullHierarchy);
@@ -205,4 +253,7 @@ public class Core {
 	public long getFreeSpace(){
 		return getTotalSpace()-getUsedSpace();
 	}
+
+	
+	
 }

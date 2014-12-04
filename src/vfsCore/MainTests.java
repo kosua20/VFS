@@ -16,11 +16,18 @@ public class MainTests {
 		c.openDisk("test.dsk");
 		//c.importElement("Planning NDT-soirée.pdf", "file 2 é.pdf");
 		//c.exportElement("file 2 é.pdf","/testp/truc.pdf");
-		c.exportElement("truc2", "truc3");
+		//c.exportElement("truc2", "truc3");
 		//c.openDisk("test.dsk");
 		System.out.println(c.getUsedSpace());
 		System.out.println(c.getTotalSpace());
-		System.out.println(c.getFreeSpace());
+		c.list();
+		c.goTo("truc2");
+		c.list();
+		c.goToParent();
+		c.list();
+		c.goToParent();
+		c.list();
+		//System.out.println(c.getFreeSpace());
 	}
 
 }

@@ -6,6 +6,9 @@ import java.util.StringTokenizer;
 
 public class Hierarchy implements Serializable, Visitable {
 	
+	//-----------------------------------------//
+	//ATTRIBUTES, CONSTRUCTORS, GETTERS/SETTERS//
+	//-----------------------------------------//
 	/**
 	 * generated serialVersionUID used to make proper serialization
 	 */
@@ -21,10 +24,7 @@ public class Hierarchy implements Serializable, Visitable {
 	/**
 	 * the parent
 	 */
-	private Hierarchy parent; /*changer constructeur en question*/
-	
-	
-	
+	private Hierarchy parent; 
 	
 	/**
 	 * constructor hierarchy using fields 
@@ -37,9 +37,7 @@ public class Hierarchy implements Serializable, Visitable {
 		this.name = name;
 		this.parent=parent;
 	}
-	
-	
-	
+
 	/**
 	 * @param name
 	 */
@@ -47,7 +45,6 @@ public class Hierarchy implements Serializable, Visitable {
 		super();
 		this.name = name;
 	}
-	
 	/**
 	 * 
 	 * @param name
@@ -58,10 +55,37 @@ public class Hierarchy implements Serializable, Visitable {
 		this.name = name;
 		this.parent=parent;
 	}
-
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	/**
+	 * @return the parent
+	 */
+	public Hierarchy getParent() {
+		return parent;
+	}
+	/**
+	 * @param parent the parent to set
+	 */
+	public void setParent(Hierarchy parent) {
+		this.parent = parent;
+	}
 
 	
-
+	
+	//---------------------//
+	//MANAGING THE CHILDREN//
+	//---------------------//
+	
 	/**
 	 * Add a child to the hierarchy, might be a folder of a file
 	 * @param newChild
@@ -72,7 +96,6 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 		this.childrens.add(newChild);
 	}
-
 
 	/**
 	 * remove a child from the hierarchy
@@ -100,40 +123,6 @@ public class Hierarchy implements Serializable, Visitable {
 		this.childrens = childrens;
 	}
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
-
-	/**
-	 * @return the parent
-	 */
-	public Hierarchy getParent() {
-		return parent;
-	}
-
-
-
-	/**
-	 * @param parent the parent to set
-	 */
-	public void setParent(Hierarchy parent) {
-		this.parent = parent;
-	}
-	
-	
-	
 	
 	
 	
@@ -170,7 +159,7 @@ public class Hierarchy implements Serializable, Visitable {
 	
 	/**
 	 * method to create a folder at a specific path, with a specified name
-	 * @param path : the string of the path
+	 * @param path : the string of the path (without the fodler name)
 	 * @param nom : the name of the folder
 	 * @throws fileNotFound : exception if path is not found
 	 * @throws BadPathInstanceException : exception is the path is of wrong instance
@@ -193,8 +182,6 @@ public class Hierarchy implements Serializable, Visitable {
 	public void deleteFolderAtPath(String path) throws fileNotFound, BadPathInstanceException{
 		Hierarchy child = findChild(path);
 		deleteFolderOfHierarchy(child);
-		
-		
 	}
 	
 	/**
@@ -210,9 +197,10 @@ public class Hierarchy implements Serializable, Visitable {
 				if(subpath instanceof Folder){
 					deleteFolderOfHierarchy(subpath);
 				}
+				//TODO Delete files
 				child.removeChild(subpath);
 			}
-			//deleting the folder it self
+			//deleting the folder itself
 			this.removeChild(child);
 		}else{
 			throw new BadPathInstanceException("Attention vous devez selectionner un DOSSIER a supprimer");
@@ -261,6 +249,7 @@ public class Hierarchy implements Serializable, Visitable {
 	public void deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
 		Hierarchy child = findChild(path);
 		if(child instanceof File){
+			//TODO Remove from disk
 			this.removeChild(child);
 		} else {
 			throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
@@ -284,14 +273,12 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 	}
 	
-	public Hierarchy goToParent(){
-		return this.parent;
-	}
 	
 	public void copyElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
 		Hierarchy toBeCopied = findChild(departure);
 		Hierarchy finalStop = findChild(destination);
 		if(finalStop instanceof Folder){
+			//Duplicate the data
 			finalStop.addChild(toBeCopied);
 		}else{
 			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");

@@ -25,7 +25,6 @@ public class CoreImportExport {
 	 * @throws CoreIOException
 	 */
 	public vfsCore.File importFile(File fileToAdd, String name) throws IOException, CoreIOException{
-		//Here check against the remaining space fileToAdd.length();
 		//We write it to the VFS disk
 		long address = cio.writeToDisk(fileToAdd);
 		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
@@ -42,7 +41,6 @@ public class CoreImportExport {
 	 */
 	public Folder importFolder(File folderToAdd, String name, Hierarchy hierarchy) throws IOException, CoreIOException{
 		Folder folder1 = new Folder(new ArrayList<Hierarchy>(), name, hierarchy);
-		//Here check sizeOfFolder(folderToAdd) against available space
 		//We recursively browse the directory and its files & sub-directories
 		for(File file1:folderToAdd.listFiles()){
 			if (file1.isFile()){
