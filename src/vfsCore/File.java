@@ -11,17 +11,18 @@ public class File extends Hierarchy{
 	private long address=-1;
 	private long size = 0;
 
-	public File(String name, long address, long size) {
-		super(name);
+	public File(String name, long address, long size, Hierarchy parent) {
+		super(name, parent);
 		super.setChildrens(null);
 		this.address=address;
 		this.size=size;
 	}
 	
-	public File(String name){
-		super(name);
+	public File(String name, Hierarchy parent){
+		super(name, parent);
 		super.setChildrens(null);
 	}
+	
 
 	/**
 	 * @return the address
