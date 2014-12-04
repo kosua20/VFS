@@ -23,11 +23,7 @@ public class Hierarchy implements Serializable {
 	 */
 	private Hierarchy parent; /*changer constructeur en question*/
 	
-	/**
-	 * StringTokenizer use in methods to split path
-	 */
-	StringTokenizer st;
-
+	
 	
 	
 	/**
@@ -162,6 +158,8 @@ public class Hierarchy implements Serializable {
 	 * @throws fileNotFound 
 	 */
 	public Hierarchy findChild(String path) throws fileNotFound{
+		StringTokenizer st;
+
 		st = new StringTokenizer(path, "/");
 		Hierarchy h1 = null;
 		loopOverToken : while(st.hasMoreTokens()){
