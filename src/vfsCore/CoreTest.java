@@ -106,7 +106,7 @@ public class CoreTest {
 	}
 	@Test
 	public void testTotalSize(){
-		assertEquals(23000,testCore.getTotalSize());
+		assertEquals(23000,testCore.getTotalSpace());
 	}
 	
 	//11

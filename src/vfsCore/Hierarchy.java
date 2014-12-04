@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class Hierarchy implements Serializable {
+public class Hierarchy implements Serializable, Visitable {
 	
 	/**
 	 * generated serialVersionUID used to make proper serialization
@@ -309,6 +309,21 @@ public class Hierarchy implements Serializable {
 			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
 		}
 	}
+
+
+
+	@Override
+	public void accept(Visitor visitor) {
+		if (this instanceof Folder){
+			visitor.visit((Folder)this);
+		} else if (this instanceof vfsCore.File){
+			visitor.visit((vfsCore.File)this);
+		}
+	}
+
+
+
+	
 	
 	
 	

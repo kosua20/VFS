@@ -282,4 +282,14 @@ public class CoreIO {
 		}
 		return i-1;
 	}
+
+	public long sizeOfDisk() throws IOException {
+		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+		//We'll need the size of the partition for safety reason
+		rAF.seek(rAF.length()-8);
+		//We want to return the size in true bytes (ie 1kB = 1024B)
+		long diskSize =(rAF.readLong()/1033)*1024;
+		rAF.close();
+		return diskSize;
+	}
 }

@@ -137,8 +137,8 @@ public class Core {
 		//Here check against the remaining space fileToAdd.length();
 		//We write it to the VFS disk
 		long address = cio.writeToDisk(fileToAdd);
-		//We create a new File (subclass of Hierarchy) element
-		vfsCore.File hFile = new vfsCore.File(name, address, fileToAdd.length(), fullHierarchy);
+		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
+		vfsCore.File hFile = new vfsCore.File(name, address, fileToAdd.length(), null);
 		return hFile;
 	}
 	
@@ -224,5 +224,24 @@ public class Core {
 				exportFolder((Folder)file1, destination+File.separator+file1.getName());
 			}
 	    }
+	}
+
+	public long getUsedSpace() {
+		SizeVisitor sz = new SizeVisitor();
+		sz.visit((Folder)fullHierarchy);
+		return sz.getSizeUsed();	
+	}
+	
+	public long getTotalSpace(){
+		try {
+			return cio.sizeOfDisk();
+		} catch (IOException e) {
+			System.out.println("Error reading the size of the disk");
+			return -1;
+		}
+	}
+	
+	public long getFreeSpace(){
+		return getTotalSpace()-getUsedSpace();
 	}
 }

@@ -17,6 +17,10 @@ public class MainTests {
 		c.importElement("Planning NDT-soirée.pdf", "file 2 é.pdf");
 		c.exportElement("file 2 é.pdf","/testp/truc.pdf");
 		c.exportElement("truc", "truc3");*/
+		c.openDisk("test.dsk");
+		System.out.println(c.getUsedSpace());
+		System.out.println(c.getTotalSpace());
+		System.out.println(c.getFreeSpace());
 	}
 
 }
