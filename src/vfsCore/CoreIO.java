@@ -23,7 +23,6 @@ import java.io.RandomAccessFile;
 public class CoreIO {
 	private String diskName;
 	
-	
 	public CoreIO(String diskName) {
 		super();
 		this.diskName = diskName;
@@ -146,64 +145,102 @@ public class CoreIO {
 		
 	}
 	
-	public boolean readFromAdress(long adress, String destination){
+	/**
+	 * read the content of a file stored on the VFS disk, using the adress of the first 1kB block and following a linked list
+	 * the content is written through a buffer to the work folder on the host file system
+	 * @param adress the address of the first block of the file
+	 * @param destination the path where to export the file
+	 * @param size size of the file
+	 * @return a boolean denoting the success of the operation
+	 * @throws fileNotFound
+	 * @throws CoreIOException
+	 */
+	public boolean readFromAdress(long adress, String destination, long size) throws fileNotFound, CoreIOException{
 		try {
 			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
 			File exportFile = new File(destination);
 			FileOutputStream fOS = new FileOutputStream(exportFile); 
 			long position = adress;
+			int compteur = 0;
+			int trueSize = 1024;
 			while (position != -1){
+				//Position on the next block
 				rAF.seek(position*(1024+8+1));
-				byte[] store = new byte[1024];
+				//Small adjustment for the last kB, to avoid writing unnecessary zeroes
+				if (((compteur+1)*1024 > size)&&(size - compteur*1024 > 0)&&(size>1024)){
+					trueSize = (int) (1024-((compteur+1)*1024-size));
+				}
+				//Buffer
+				byte[] store = new byte[trueSize];
+				//Read from the VFS, write to the host
 				rAF.read(store);
 				fOS.write(store);
+				//get the next position
 				position = rAF.readLong();
+				compteur++;	
 			}
 			rAF.close();
 			fOS.close();
 			return true;
 		} catch (FileNotFoundException e) {
-			System.out.println("Impossible de lire le disque");
-			return false;
+			throw new fileNotFound("Import error");
+			
 		} catch (IOException e) {
-			return false;
+			throw new CoreIOException("Import error");
+			
 		}
 	}
 	
-	public long writeToDisk(File file) throws IOException{
+	/**
+	 * write the content of a java.io.File to the VFS disk, by blocks of 1kB
+	 * @param file a File object containing the information about the file to import
+	 * @return the adress of the first block of the file on the VFS disk
+	 * @throws IOException
+	 * @throws CoreIOException
+	 */
+	public long writeToDisk(File file) throws IOException, CoreIOException{
 		long firstAdress = -1;
 		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
+		//We'll need the size of the partition for safety reason
+		rAF.seek(rAF.length()-8);
+		long diskSize = rAF.readLong();
+		rAF.seek(0);
+		//New input stream
 		FileInputStream fIS = new FileInputStream(file);
 		byte[] readTemp = new byte[1024];
-		long currentAdress=getNextEmptyBlockStartingFrom(0, rAF);
-		System.out.println(currentAdress);
+		//getting the next available block of 1kB
+		long currentAdress=getNextEmptyBlockStartingFrom(0, rAF,diskSize);
 		firstAdress = currentAdress;
 		int i = 0;
-		//Loop
+		//If the file is bigger than 1kB
 		if (file.length()>1024){
-		while (i*1024 < file.length()){
-			
-			rAF.seek(currentAdress * (1024 + 8 +1));
-			
-			fIS.read(readTemp);
-			
-			rAF.write(readTemp);
-			
-			long nextAdress=getNextEmptyBlockStartingFrom(currentAdress+1, rAF);
-			rAF.writeLong(nextAdress);
-			//ecrire dirty 1
-			rAF.write(1);
-			currentAdress = nextAdress;
-			i++;
+			//We loop to write 1kB block at a time
+			while (i*1024 < file.length()){
+				rAF.seek(currentAdress * (1024 + 8 +1));
+				//New buffer
+				readTemp = new byte[1024];
+				//Reading and writing
+				fIS.read(readTemp);
+				rAF.write(readTemp);
+				//Getting the adress of the next empty block
+				long nextAdress=getNextEmptyBlockStartingFrom(currentAdress+1, rAF, diskSize);
+				//(just a small position reset because of the method call on previous line (shared RandomAccessFile)
+				rAF.seek(currentAdress * (1024 + 8 +1)+1024);
+				//Storing the adress and a "dirty bit"
+				rAF.writeLong(nextAdress);
+				rAF.write(1);
+				currentAdress = nextAdress;
+				i++;
+			}
 		}
-		}
-		//Last kilobyte of the file
+		//Last kilobyte of the file, with special treatment
+		System.out.println("Last kB");
 		rAF.seek(currentAdress * (1024 + 8+1));
 		readTemp = new byte[1024];
 		fIS.read(readTemp);
 		rAF.write(readTemp);
+		//Convention : EndOfFile -> address = -1
 		rAF.writeLong(-1);
-		//ecrire dirty 1
 		rAF.write(1);
 		//The file is now completely written
 		rAF.close();
@@ -212,16 +249,24 @@ public class CoreIO {
 		return firstAdress;
 	}
 	
-	public long getNextEmptyBlockStartingFrom(long adress, RandomAccessFile rAF) throws IOException{
+	/**
+	 * get the next empty block of 1kB on the VFS disk file, starting from a specified adress
+	 * @param adress 
+	 * @param rAF a RandomAccessFile used to arbitrarily browse the file
+	 * @param size the size of the VFS partition, for bounds checking
+	 * @return the adress of the next empty 1kB block
+	 * @throws IOException
+	 * @throws CoreIOException
+	 */
+	public long getNextEmptyBlockStartingFrom(long adress, RandomAccessFile rAF, long size) throws IOException, CoreIOException {
 		long i = adress;
 		int dirty = 1;
-		//TODO we need to check for the end of the file, to be sure not to overflow
 		while ((dirty != 0)){
-			rAF.seek(i*(1024 + 8+1));
+			if (i*1024>=size){ throw new CoreIOException("plus de blocs libres");}
+			rAF.seek(i*(1024 + 8+1)+1024+8);
 			dirty = rAF.read();
-			i++;
+			i = i + 1;
 		}
-		
 		return i-1;
 	}
 }
