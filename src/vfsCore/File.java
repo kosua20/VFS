@@ -17,6 +17,11 @@ public class File extends Hierarchy{
 		this.address=address;
 		this.size=size;
 	}
+	
+	public File(String name){
+		super(name);
+		super.setChildrens(null);
+	}
 
 	/**
 	 * @return the address
