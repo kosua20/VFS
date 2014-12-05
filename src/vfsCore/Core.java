@@ -157,6 +157,7 @@ public class Core {
 					//We import it
 					vfsCore.File hFile = cie.importFile(fileToAdd, VFSPath);
 					//For now, we add it to the root
+					hFile.setParent(fullHierarchy);
 					fullHierarchy.addChild(hFile);
 					//And we save the modified Hierarchy
 					cio.saveHierarchyToFile(fullHierarchy);
@@ -217,6 +218,132 @@ public class Core {
 	}
 
 	
+	
+	
+	//-----------------//
+	//DELETING ELEMENTS//
+	//-----------------//
+	
+	/**
+	 * method to delete a folder and all its content at a specified path
+	 * @param path
+	 * @throws fileNotFound
+	 * @throws BadPathInstanceException
+	 */
+	public void deleteFolderAtPath(String path) throws fileNotFound, BadPathInstanceException{
+		Hierarchy child = fullHierarchy.findChild(path);
+		deleteFolderOfHierarchy(child);
+	}
+	
+	/**
+	 * the "tool" method to delete a given in parameter hierarchy
+	 * @param child
+	 * @throws BadPathInstanceException
+	 */
+	public void deleteFolderOfHierarchy(Hierarchy child) throws BadPathInstanceException{
+		if (child instanceof Folder){
+			//deleting the sub-folders and subfiles
+			for(Hierarchy subpath : child.getChildrens())
+			{		
+				if(subpath instanceof Folder){
+					deleteFolderOfHierarchy(subpath);
+				} else if (subpath instanceof vfsCore.File){
+					//If it is a file, we delete it through CoreIO
+					try {
+						cio.removeFileAtAddress(((vfsCore.File) subpath).getAddress());
+					} catch (fileNotFound e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (CoreIOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				//In all cases, we remove the element from the children list
+				child.removeChild(subpath);
+			}
+			//deleting the folder itself
+			child.getParent().removeChild(child);
+		}else{
+			throw new BadPathInstanceException("Attention vous devez selectionner un DOSSIER a supprimer");
+		}
+	}
+	/**
+	 * 
+	 * @param path
+	 * @throws BadPathInstanceException 
+	 * @throws fileNotFound 
+	 */
+	public void deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
+		Hierarchy child = fullHierarchy.findChild(path);
+		if(child instanceof vfsCore.File){
+			try {
+				cio.removeFileAtAddress(((vfsCore.File) child).getAddress());
+			} catch (CoreIOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			child.getParent().removeChild(child);
+		} else {
+			throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
+		}
+		
+	}
+	
+	
+	
+	//---------------------------//
+	//COPYING AND MOVING ELEMENTS//
+	//---------------------------//
+	
+	public void copyElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
+		Hierarchy toBeCopied = fullHierarchy.findChild(departure);
+		Hierarchy finalStop = fullHierarchy.findChild(destination);
+		if(finalStop instanceof Folder){
+			if (toBeCopied instanceof vfsCore.File){
+				//we want to copy a single file
+				if (((vfsCore.File) toBeCopied).getSize() >= getFreeSpace()){
+					System.out.println("Pas assez de place sur le disque");
+				}
+				long newAdress = -1;
+				try {
+					newAdress = cio.copyFileAtAddress(((vfsCore.File) toBeCopied).getAddress());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CoreIOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				finalStop.addChild(new vfsCore.File(toBeCopied.getName(), newAdress, ((vfsCore.File) toBeCopied).getSize(), finalStop));
+			} else {
+				//TODO we want to copy a folder
+			}
+			
+		
+		}else{
+			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+		}
+		
+	}
+	/**
+	 * move an element originally at departure to the folder designated by destination
+	 * @param departure the element to move
+	 * @param destination the folder were the element should be moved
+	 * @throws fileNotFound
+	 * @throws BadPathInstanceException
+	 */
+	public void moveElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
+		Hierarchy toBeMoved = fullHierarchy.findChild(departure);
+		Hierarchy finalStop = fullHierarchy.findChild(destination);
+		if(finalStop instanceof Folder){
+			finalStop.addChild(toBeMoved);
+			toBeMoved.getParent().removeChild(toBeMoved);
+			toBeMoved.setParent(finalStop);
+		}else{
+			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+		}
+	}
 	
 	
 	//-----------------//

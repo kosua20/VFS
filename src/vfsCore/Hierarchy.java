@@ -159,7 +159,7 @@ public class Hierarchy implements Serializable, Visitable {
 	
 	/**
 	 * method to create a folder at a specific path, with a specified name
-	 * @param path : the string of the path (without the fodler name)
+	 * @param path : the string of the path (without the folder name)
 	 * @param nom : the name of the folder
 	 * @throws fileNotFound : exception if path is not found
 	 * @throws BadPathInstanceException : exception is the path is of wrong instance
@@ -173,39 +173,7 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 	}
 	
-	/**
-	 * method to delete a folder and all its content at a specified path
-	 * @param path
-	 * @throws fileNotFound
-	 * @throws BadPathInstanceException
-	 */
-	public void deleteFolderAtPath(String path) throws fileNotFound, BadPathInstanceException{
-		Hierarchy child = findChild(path);
-		deleteFolderOfHierarchy(child);
-	}
 	
-	/**
-	 * the "tool" method to delete a given in parameter hierarchy
-	 * @param child
-	 * @throws BadPathInstanceException
-	 */
-	public void deleteFolderOfHierarchy(Hierarchy child) throws BadPathInstanceException{
-		if (child instanceof Folder){
-			//deleting the subfolders and subfiles
-			for(Hierarchy subpath : child.getChildrens())
-			{		
-				if(subpath instanceof Folder){
-					deleteFolderOfHierarchy(subpath);
-				}
-				//TODO Delete files
-				child.removeChild(subpath);
-			}
-			//deleting the folder itself
-			this.removeChild(child);
-		}else{
-			throw new BadPathInstanceException("Attention vous devez selectionner un DOSSIER a supprimer");
-		}
-	}
 	
 	/**
 	 * rename a folder at a specified path
@@ -240,22 +208,7 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param path
-	 * @throws BadPathInstanceException 
-	 * @throws fileNotFound 
-	 */
-	public void deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
-		Hierarchy child = findChild(path);
-		if(child instanceof File){
-			//TODO Remove from disk
-			this.removeChild(child);
-		} else {
-			throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
-		}
-		
-	}
+	
 	
 	/**
 	 * rename a file at a specified path
@@ -274,28 +227,6 @@ public class Hierarchy implements Serializable, Visitable {
 	}
 	
 	
-	public void copyElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
-		Hierarchy toBeCopied = findChild(departure);
-		Hierarchy finalStop = findChild(destination);
-		if(finalStop instanceof Folder){
-			//Duplicate the data
-			finalStop.addChild(toBeCopied);
-		}else{
-			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
-		}
-		
-	}
-	
-	public void moveElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
-		Hierarchy toBeMoved = findChild(departure);
-		Hierarchy finalStop = findChild(destination);
-		if(finalStop instanceof Folder){
-			finalStop.addChild(toBeMoved);
-			deleteFolderOfHierarchy(toBeMoved);
-		}else{
-			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
-		}
-	}
 
 
 

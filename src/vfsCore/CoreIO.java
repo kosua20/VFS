@@ -168,7 +168,6 @@ public class CoreIO {
 	public boolean readFromAdress(long adress, String destination, long size) throws fileNotFound, CoreIOException{
 		try {
 			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
-			System.out.println(destination);
 			File exportFile = new File(destination);
 			FileOutputStream fOS = new FileOutputStream(exportFile); 
 			long position = adress;
@@ -255,6 +254,79 @@ public class CoreIO {
 	
 	
 	
+	//--------------------------//
+	//DELETING AND COPYING FILES//
+	//--------------------------//
+	
+	public void removeFileAtAddress(long address) throws fileNotFound, CoreIOException {
+		try {
+			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
+	 
+			long position = address;
+			while (position >= 0){
+				rAF.seek(position*(1024+8+1));
+				//We erase all bytes because when writing a new file over this block, we won't be sure the block will be entirely re-filled
+				byte[] eraser = new byte[1024];
+				rAF.write(eraser);
+				//Geting the next position
+				position = rAF.readLong();
+				//erasing the position (safety measure)
+				rAF.seek(rAF.getFilePointer()-8);
+				rAF.writeLong(-1);
+				//marking the block as empty
+				rAF.write(0);
+			}
+			rAF.close();
+		} catch (FileNotFoundException e) {
+			throw new fileNotFound("Import error");
+			
+		} catch (IOException e) {
+			throw new CoreIOException("Import error");
+			
+		}
+	}
+	
+	public long copyFileAtAddress(long address) throws IOException, CoreIOException {
+		long firstAddress = -1;
+		RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
+		//We'll need the size of the partition for safety reason
+		rAF.seek(rAF.length()-8);
+		long diskSize = rAF.readLong();
+		rAF.seek(0);
+		//Initialization
+		int i = 0;
+		long positionOriginal = address;
+		long positionCopy = getNextEmptyBlockStartingFrom(0, rAF, diskSize);
+		firstAddress = positionCopy;
+		while (positionOriginal >= 0){
+			//New buffer
+			byte[] readTemp = new byte[1024];
+			//Reading the original version of the file
+			rAF.seek(positionOriginal * (1024+8+1));
+			rAF.read(readTemp);
+			//Next block of the original version
+			positionOriginal = rAF.readLong();
+			//Writing to the copy version
+			rAF.seek(positionCopy * (1024+8+1));
+			rAF.write(readTemp);
+			//Next block of the copy version, if we need it (ie positionOriginal != -1)
+			if (positionOriginal >=0){
+				positionCopy = getNextEmptyBlockStartingFrom(positionCopy, rAF, diskSize);
+			} else {
+				positionCopy = -1;
+			}
+			rAF.writeLong(positionCopy);
+			rAF.write(1);
+
+		}
+		//The file is now completely copied
+		rAF.close();
+		//We return the address of the first block of the copied file
+		return firstAddress;
+	}
+	
+	
+	
 	
 	//---------//
 	//UTILITIES//
@@ -290,6 +362,7 @@ public class CoreIO {
 	 */
 	public long getNextEmptyBlockStartingFrom(long adress, RandomAccessFile rAF, long size) throws IOException, CoreIOException {
 		long i = adress;
+		long savedPosition = rAF.getFilePointer();
 		int dirty = 1;
 		while ((dirty != 0)){
 			if (i*1024>=size){ throw new CoreIOException("plus de blocs libres");}
@@ -297,6 +370,8 @@ public class CoreIO {
 			dirty = rAF.read();
 			i = i + 1;
 		}
+		//Leaving the random access file positioned as we found it
+		rAF.seek(savedPosition);
 		return i-1;
 	}
 
@@ -314,4 +389,5 @@ public class CoreIO {
 		rAF.close();
 		return diskSize;
 	}
+	
 }
