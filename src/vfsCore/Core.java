@@ -236,7 +236,7 @@ public class Core {
 	}
 	
 	/**
-	 * the "tool" method to delete a given in parameter hierarchy
+	 * the "tool" method to delete a hierarchy given in parameter 
 	 * @param child
 	 * @throws BadPathInstanceException
 	 */
@@ -268,9 +268,10 @@ public class Core {
 			throw new BadPathInstanceException("Attention vous devez selectionner un DOSSIER a supprimer");
 		}
 	}
+	
 	/**
-	 * 
-	 * @param path
+	 * delete a file at a path on the VFS disk
+	 * @param path the path to the file in the vfs core (absolute path)
 	 * @throws BadPathInstanceException 
 	 * @throws fileNotFound 
 	 */
@@ -297,6 +298,12 @@ public class Core {
 	//COPYING AND MOVING ELEMENTS//
 	//---------------------------//
 	
+	/**
+	 * copy an element (given by an absolute path) to another folder on the vfs (absolute path too)
+	 * @param departure absolute path to the element to copy
+	 * @param destination absolute path to the destination folder of the copy
+	 * @return true if the operation is successful
+	 */
 	public boolean copyElementAtPath(String departure, String destination){
 		try {
 			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
@@ -315,21 +322,30 @@ public class Core {
 		}	
 	}
 	
+	/**
+	 * copy a Hierarchy element to another Hierarchy element
+	 * @param original the Hierarchy to copy
+	 * @param destinationFolder the Hierarchy where we should copy
+	 * @return true if the operation is successful
+	 */
 	public boolean copyElement(Hierarchy original, Folder destinationFolder){
 		//Thank to the check in copyElementAtPath, we are sure destinationfolder is a Folder
 			if (original instanceof vfsCore.File){
 				//we want to copy a single file
+				//We check it's size
 				if (((vfsCore.File) original).getSize() >= getFreeSpace()){
 					System.out.println("Pas assez de place sur le disque");
 					return false;
 				}
 				long newAdress = -1;
 				try {
+					//We pass the copy order to the CoreIO
 					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
 				} catch (IOException | CoreIOException e) {
 					System.out.println("Error in the CoreIO");
 					return false;
 				} 
+				//We add the element to the Hierarchy
 				destinationFolder.addChild(new vfsCore.File(original.getName(), newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
 				return true;
 			} else {
@@ -354,6 +370,7 @@ public class Core {
 			}
 			
 	}
+	
 	/**
 	 * move an element originally at departure to the folder designated by destination
 	 * @param departure the element to move
