@@ -533,10 +533,17 @@ public class Core {
 	public long getFreeSpace(){
 		return getTotalSpace()-getUsedSpace();
 	}
+	
+	
+	
+	//---------------//
+	//SEARCHING FILES//
+	//---------------//
 
-	
-	
-
-	
+	public ArrayList<Hierarchy> searchFile(String search) {
+		SearchVisitor sv = new SearchVisitor(search);
+		sv.visit((Folder)fullHierarchy);
+		return sv.getElements();
+	}
 	
 }

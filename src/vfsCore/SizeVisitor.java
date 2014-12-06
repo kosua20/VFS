@@ -5,8 +5,7 @@ public class SizeVisitor implements Visitor{
 	private long sizeUsed = 0;
 	
 	@Override
-	public void visit(Hierarchy object){	
-	};
+	public void visit(Hierarchy object){}
 	
 	public void visit(Folder folder) {
 		

@@ -2,6 +2,8 @@ package vfsCore;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 //TDD
 public class CoreTest {
@@ -112,7 +114,7 @@ public class CoreTest {
 	//11
 	@Test
 	public void testSearch(){
-		assertTrue(testCore.searchFile("truc"));
+		assertTrue(testCore.searchFile("truc").equals(new ArrayList<Hierarchy>()));
 	}
 	
 }
