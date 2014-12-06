@@ -274,16 +274,17 @@ public class Core {
 	 * @throws BadPathInstanceException 
 	 * @throws fileNotFound 
 	 */
-	public void deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
+	public boolean deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
 		Hierarchy child = fullHierarchy.findChild(path);
 		if(child instanceof vfsCore.File){
 			try {
 				cio.removeFileAtAddress(((vfsCore.File) child).getAddress());
 			} catch (CoreIOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("CoreIO exception");
+				return false;
 			}
 			child.getParent().removeChild(child);
+			return true;
 		} else {
 			throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
 		}
@@ -296,35 +297,62 @@ public class Core {
 	//COPYING AND MOVING ELEMENTS//
 	//---------------------------//
 	
-	public void copyElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
-		Hierarchy toBeCopied = fullHierarchy.findChild(departure);
-		Hierarchy finalStop = fullHierarchy.findChild(destination);
-		if(finalStop instanceof Folder){
-			if (toBeCopied instanceof vfsCore.File){
+	public boolean copyElementAtPath(String departure, String destination){
+		try {
+			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
+			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			if(finalStop instanceof Folder){
+				return copyElement(toBeCopied, (Folder)finalStop);
+			} else {
+				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+			}
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist.");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("The destination element is a file");
+			return false;
+		}	
+	}
+	
+	public boolean copyElement(Hierarchy original, Folder destinationFolder){
+		//Thank to the check in copyElementAtPath, we are sure destinationfolder is a Folder
+			if (original instanceof vfsCore.File){
 				//we want to copy a single file
-				if (((vfsCore.File) toBeCopied).getSize() >= getFreeSpace()){
+				if (((vfsCore.File) original).getSize() >= getFreeSpace()){
 					System.out.println("Pas assez de place sur le disque");
+					return false;
 				}
 				long newAdress = -1;
 				try {
-					newAdress = cio.copyFileAtAddress(((vfsCore.File) toBeCopied).getAddress());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (CoreIOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				finalStop.addChild(new vfsCore.File(toBeCopied.getName(), newAdress, ((vfsCore.File) toBeCopied).getSize(), finalStop));
+					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
+				} catch (IOException | CoreIOException e) {
+					System.out.println("Error in the CoreIO");
+					return false;
+				} 
+				destinationFolder.addChild(new vfsCore.File(original.getName(), newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
+				return true;
 			} else {
-				//TODO we want to copy a folder
+				//We want to copy a folder
+				original = ((Folder)original);
+				//First we check the available size
+				SizeVisitor sz = new SizeVisitor();
+				sz.visit(original);
+				if(sz.getSizeUsed() >= getFreeSpace()){
+					System.out.println("Pas assez de place sur le disque");
+					return false;
+				}
+				//Then we create the new folder, empty
+				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),original.getName(),destinationFolder);
+				//And we add its children
+				for(Hierarchy child:original.getChildrens()){
+					copyElement(child, copyFolder);
+				}
+				//Finally we add the newly constructed hierarchy to the destination folder
+				destinationFolder.addChild(copyFolder);
+				return true;
 			}
 			
-		
-		}else{
-			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
-		}
-		
 	}
 	/**
 	 * move an element originally at departure to the folder designated by destination
