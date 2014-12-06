@@ -115,7 +115,7 @@ public class Core {
 			for(Hierarchy child:currentHierarchy.getChildrens()){
 				s = s+"- "+child.getName()+" ";
 				if (child instanceof vfsCore.File){
-					s = s +" f "+((vfsCore.File)child).getSize()+"o";
+					s = s +" f "+((vfsCore.File)child).getSize()+"B";
 				}else {
 					s = s + " F";
 				}
@@ -239,7 +239,6 @@ public class Core {
 					//We import it
 					vfsCore.File hFile = cie.importFile(fileToAdd, VFSPath);
 					//For now, we add it to the root
-					hFile.setParent(fullHierarchy);
 					fullHierarchy.addChild(hFile);
 					//And we save the modified Hierarchy
 					cio.saveHierarchyToFile(fullHierarchy);
@@ -257,7 +256,7 @@ public class Core {
 				}
 				try {
 					//We import it
-					vfsCore.Folder hFolder = cie.importFolder(fileToAdd, VFSPath,fullHierarchy);
+					vfsCore.Folder hFolder = cie.importFolder(fileToAdd, VFSPath);
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
 					//And we save the modified Hierarchy
@@ -481,9 +480,10 @@ public class Core {
 			toBeMoved = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
 			if(finalStop instanceof Folder){
-				finalStop.addChild(toBeMoved);
+				
 				toBeMoved.getParent().removeChild(toBeMoved);
-				toBeMoved.setParent(finalStop);
+				finalStop.addChild(toBeMoved);
+				//toBeMoved.setParent(finalStop);
 				return true;
 			}else{
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
@@ -540,10 +540,29 @@ public class Core {
 	//SEARCHING FILES//
 	//---------------//
 
+	/**
+	 * returns an array containing all the Files objects whose name is equal to the string given as an argument
+	 * @param search the name of the file, including its extension
+	 * @return an array containing all the Files objects whose name is equal to the string given as an argument
+	 */
 	public ArrayList<Hierarchy> searchFile(String search) {
 		SearchVisitor sv = new SearchVisitor(search);
 		sv.visit((Folder)fullHierarchy);
 		return sv.getElements();
+	}
+	
+	public void printSearch(String search){
+		ArrayList<Hierarchy> results = searchFile(search);
+		
+		if (results.isEmpty()){
+			System.out.println("No file found.");
+		} else {
+			System.out.println(results.size() + " file(s) found :");
+			for (Hierarchy file:results){
+				System.out.println("- "+file.getName()+" of size "+((vfsCore.File)file).getSize()+"B in folder "+file.getParent().getName());
+			}
+		}
+		
 	}
 	
 }

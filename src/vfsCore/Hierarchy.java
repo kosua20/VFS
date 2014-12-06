@@ -33,6 +33,11 @@ public class Hierarchy implements Serializable, Visitable {
 	 */
 	public Hierarchy(ArrayList<Hierarchy> childrens, String name, Hierarchy parent) {
 		super();
+		if (childrens != null){
+			for(Hierarchy child:childrens){
+				child.setParent(this);
+			}
+		}
 		this.childrens = childrens;
 		this.name = name;
 		this.parent=parent;
@@ -94,6 +99,7 @@ public class Hierarchy implements Serializable, Visitable {
 		if (this.childrens == null){
 			this.childrens = new ArrayList<Hierarchy>();
 		}
+		newChild.setParent(this);
 		this.childrens.add(newChild);
 	}
 
@@ -110,16 +116,21 @@ public class Hierarchy implements Serializable, Visitable {
 	}
 	
 	/**
-	 * @return the childrens
+	 * @return the children
 	 */
 	public ArrayList<Hierarchy> getChildrens() {
 		return childrens;
 	}
 
 	/**
-	 * @param childrens the childrens to set
+	 * @param childrens the children to set
 	 */
 	public void setChildrens(ArrayList<Hierarchy> childrens) {
+		if (childrens != null){
+			for(Hierarchy child:childrens){
+				child.setParent(this);
+			}
+		}
 		this.childrens = childrens;
 	}
 
