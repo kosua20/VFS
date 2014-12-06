@@ -294,7 +294,6 @@ public class CoreIO {
 		long diskSize = rAF.readLong();
 		rAF.seek(0);
 		//Initialization
-		int i = 0;
 		long positionOriginal = address;
 		long positionCopy = getNextEmptyBlockStartingFrom(0, rAF, diskSize);
 		firstAddress = positionCopy;
@@ -317,7 +316,6 @@ public class CoreIO {
 			}
 			rAF.writeLong(positionCopy);
 			rAF.write(1);
-
 		}
 		//The file is now completely copied
 		rAF.close();

@@ -3,9 +3,6 @@ package vfsCore;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 
@@ -103,12 +100,14 @@ public class Core {
 				return false;
 			}
 		}
-		public void goToParent() {
+		public  boolean goToParent() {
 			if (currentHierarchy.equals(fullHierarchy)){
 				System.out.println("You already are on the root of the vfs disk");
+				return false;
 			} else {
 				currentHierarchy = currentHierarchy.getParent();
 			}
+			return true;
 		}
 		
 		public boolean list(){
@@ -124,9 +123,92 @@ public class Core {
 			}
 			System.out.println(s);
 			return true;
-			
 		}
 	
+		
+		
+	//------------------------------//
+	//CREATING AND RENAMING ELEMENTS//
+	//------------------------------//
+	
+	/**
+	 * create a folder at the specified absolute path	
+	 * @param path the folder where we should create the new folder
+	 * @param name the name of the new folder
+	 * @return true if the operation is successful
+	 */
+	public boolean createFolderAtPath(String path, String name) {
+		try {
+			fullHierarchy.createFolderAtPath(path, name);
+			return true;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("Attention, vous devez fournir un dossier");
+			return false;
+		}
+	}
+
+	/**
+	 * rename the folder at the specified absolute path
+	 * @param path the absolute path to the folder
+	 * @param name the new name of the folder
+	 * @return true if the operation is successful
+	 */
+	public boolean renameFolderAtPath(String path, String name) {
+		try {
+			fullHierarchy.renameFolderAtPath(path, name);
+			return true;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("Attention, vous devez fournir un dossier");
+			return false;
+		}
+	}
+
+	/**
+	 * create a file at the specified absolute path	
+	 * file is initialized with no address
+	 * @param path the folder where we should create the new file
+	 * @param name the name of the new file
+	 * @return true if the operation is successful
+	 */
+	public boolean createFileAtPath(String path, String name) {
+		try {
+			fullHierarchy.createFileAtPath(path, name);
+			return true;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("Attention, vous devez fournir un dossier");
+			return false;
+		}
+	}
+
+	/**
+	 * rename the file at the specified absolute path
+	 * @param path the absolute path to the file
+	 * @param name the new name of the file
+	 * @return true if the operation is successful
+	 */
+	public boolean renameFileAtPath(String path, String name) {
+		try {
+			fullHierarchy.renameFileAtPath(path, name);
+			return true;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("Attention, vous devez fournir un dossier");
+			return false;
+		}
+	}
+		
+		
 	
 	//--------------------------------//
 	//IMPORTING AND EXPORTING ELEMENTS//
@@ -230,40 +312,49 @@ public class Core {
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 */
-	public void deleteFolderAtPath(String path) throws fileNotFound, BadPathInstanceException{
-		Hierarchy child = fullHierarchy.findChild(path);
-		deleteFolderOfHierarchy(child);
+	public boolean deleteFolderAtPath(String path){
+		try {
+			Hierarchy child = fullHierarchy.findChild(path);
+			deleteFolderOfHierarchy(child);
+			return true;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("Attention vous devez selectionner un DOSSIER a supprimer");
+			return false;
+		} catch (CoreIOException e) {
+			System.out.println("CoreIO exception");
+			return false;
+		}
+		
 	}
 	
 	/**
 	 * the "tool" method to delete a hierarchy given in parameter 
 	 * @param child
 	 * @throws BadPathInstanceException
+	 * @throws CoreIOException 
+	 * @throws fileNotFound 
 	 */
-	public void deleteFolderOfHierarchy(Hierarchy child) throws BadPathInstanceException{
-		if (child instanceof Folder){
+	public void deleteFolderOfHierarchy(Hierarchy folder) throws BadPathInstanceException, fileNotFound, CoreIOException{
+		if (folder instanceof Folder){
 			//deleting the sub-folders and subfiles
-			for(Hierarchy subpath : child.getChildrens())
+			for(Hierarchy subpath : folder.getChildrens())
 			{		
 				if(subpath instanceof Folder){
 					deleteFolderOfHierarchy(subpath);
 				} else if (subpath instanceof vfsCore.File){
 					//If it is a file, we delete it through CoreIO
-					try {
-						cio.removeFileAtAddress(((vfsCore.File) subpath).getAddress());
-					} catch (fileNotFound e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (CoreIOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					cio.removeFileAtAddress(((vfsCore.File) subpath).getAddress());
 				}
 				//In all cases, we remove the element from the children list
-				child.removeChild(subpath);
+				//Potential error, see with the tests
+				//maybe only in the case of a file
+				folder.removeChild(subpath);
 			}
 			//deleting the folder itself
-			child.getParent().removeChild(child);
+			folder.getParent().removeChild(folder);
 		}else{
 			throw new BadPathInstanceException("Attention vous devez selectionner un DOSSIER a supprimer");
 		}
@@ -275,19 +366,25 @@ public class Core {
 	 * @throws BadPathInstanceException 
 	 * @throws fileNotFound 
 	 */
-	public boolean deleteFileAtPath(String path) throws BadPathInstanceException, fileNotFound{
-		Hierarchy child = fullHierarchy.findChild(path);
-		if(child instanceof vfsCore.File){
-			try {
-				cio.removeFileAtAddress(((vfsCore.File) child).getAddress());
-			} catch (CoreIOException e) {
-				System.out.println("CoreIO exception");
-				return false;
+	public boolean deleteFileAtPath(String path){
+		try {
+			Hierarchy child = fullHierarchy.findChild(path);
+			if(child instanceof vfsCore.File){
+				cio.removeFileAtAddress(((vfsCore.File) child).getAddress());			
+				child.getParent().removeChild(child);
+				return true;
+			} else {
+				throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
 			}
-			child.getParent().removeChild(child);
-			return true;
-		} else {
-			throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
+		} catch (BadPathInstanceException e) {
+			System.out.println("Vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
+			return false;
+		} catch (CoreIOException e) {
+			System.out.println("CoreIO exception");
+			return false;
+		} catch (fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
 		}
 		
 	}
@@ -378,16 +475,27 @@ public class Core {
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 */
-	public void moveElement(String departure, String destination) throws fileNotFound, BadPathInstanceException{
-		Hierarchy toBeMoved = fullHierarchy.findChild(departure);
-		Hierarchy finalStop = fullHierarchy.findChild(destination);
-		if(finalStop instanceof Folder){
-			finalStop.addChild(toBeMoved);
-			toBeMoved.getParent().removeChild(toBeMoved);
-			toBeMoved.setParent(finalStop);
-		}else{
-			throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+	public boolean moveElement(String departure, String destination){
+		Hierarchy toBeMoved;
+		try {
+			toBeMoved = fullHierarchy.findChild(departure);
+			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			if(finalStop instanceof Folder){
+				finalStop.addChild(toBeMoved);
+				toBeMoved.getParent().removeChild(toBeMoved);
+				toBeMoved.setParent(finalStop);
+				return true;
+			}else{
+				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+			}
+		} catch (fileNotFound e) {
+			System.out.println("Le fichier n'existe pas");
+			return false;
+		} catch (BadPathInstanceException e) {
+			System.out.println("attention vous essayer de copier un element dans un fichier !!");
+			return false;
 		}
+		
 	}
 	
 	
@@ -425,6 +533,9 @@ public class Core {
 	public long getFreeSpace(){
 		return getTotalSpace()-getUsedSpace();
 	}
+
+	
+	
 
 	
 	

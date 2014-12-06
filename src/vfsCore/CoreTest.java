@@ -23,7 +23,7 @@ public class CoreTest {
 	//4
 	@Test
 	public void testDeletionOfDisk(){
-		//assertTrue(testCore.deleteDisk("test/testDisk.vfsd"));
+		assertTrue(testCore.deleteDisk("test/testDisk.vfsd"));
 	}
 	
 	//5
@@ -77,8 +77,8 @@ public class CoreTest {
 	}
 	@Test
 	public void testCopyElement(){
-		assertTrue(testCore.copyElement("/file1.txt","/folder1/file1.txt"));
-		assertTrue(testCore.copyElement("/folder2","/folder1/folder3/folder2"));
+		assertTrue(testCore.copyElementAtPath("/file1.txt","/folder1/file1.txt"));
+		assertTrue(testCore.copyElementAtPath("/folder2","/folder1/folder3/folder2"));
 	}
 	
 	//8
