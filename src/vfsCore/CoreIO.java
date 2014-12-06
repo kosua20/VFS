@@ -94,10 +94,13 @@ public class CoreIO {
 	 * @return true if success, false in any other case.
 	 * @throws CoreIOException 
 	 * @throws fileNotFound 
+	 * @throws IOException 
 	 */
-	public boolean saveHierarchyToFile(Hierarchy h1) throws CoreIOException, fileNotFound{
+	public boolean saveHierarchyToFile(Hierarchy h1) throws CoreIOException, fileNotFound, IOException{
 		//RandomAccessFile allows us to arbitrarily move a pointer in the content of the file
-		try (RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw")) {
+		RandomAccessFile rAF = null;
+		try {
+			rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
 			//We read the size of the data partition (stored as a long on 8 bytes, at the end of the file)
 			rAF.seek(rAF.length()-8);
 			long startingPosition = rAF.readLong();
@@ -109,22 +112,31 @@ public class CoreIO {
 			rAF.writeLong(startingPosition);
 			//We truncate the file, thus deleting any previously stored serialization
 			rAF.setLength(rAF.getFilePointer());
-			rAF.close();
-			return true;
+			
+			
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("");
 		} catch (Exception e) {
 			throw new CoreIOException("Export error");
+		} finally {
+			if (rAF!=null){
+				rAF.close();
+			}
 		}
+		return true;
 	}
 	
 	/**
 	 * loads a Hierarchy from a .dsk file (VFS file on the host system)
 	 * @return the hierarchy stored in the VFS, as a Hierarchy object
 	 * @throws fileNotFound, CoreIOException 
+	 * @throws IOException 
 	 */
-	public Hierarchy loadHierarchyTreeFromFile() throws fileNotFound, CoreIOException{
-		try (RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r")) {
+	public Hierarchy loadHierarchyTreeFromFile() throws fileNotFound, CoreIOException, IOException{
+		RandomAccessFile rAF = null;
+		Hierarchy h1 = null;
+		try {
+			rAF= new RandomAccessFile(new File(this.getDiskName()), "r"); 
 			//Reading the size of the data partition
 			rAF.seek(rAF.length()-8);
 			long startingPosition = rAF.readLong();
@@ -137,14 +149,17 @@ public class CoreIO {
 			//Reading the bytes into the array
 			rAF.read(hierarchyBytes);
 			//Convert the byte array to a Hierarchy object, and returning it
-			Hierarchy h1 = getHierarchyFromBytes(hierarchyBytes);
-			rAF.close();
-			return h1;
+			h1 = getHierarchyFromBytes(hierarchyBytes);
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("");
 		} catch (Exception e) {
 			throw new CoreIOException("Import error");
+		} finally {
+			if (rAF!=null){
+				rAF.close();
+			}
 		}
+		return h1;
 		
 	}
 	
@@ -164,12 +179,15 @@ public class CoreIO {
 	 * @return a boolean denoting the success of the operation
 	 * @throws fileNotFound
 	 * @throws CoreIOException
+	 * @throws IOException 
 	 */
-	public boolean readFromAdress(long adress, String destination, long size) throws fileNotFound, CoreIOException{
+	public boolean readFromAdress(long adress, String destination, long size) throws fileNotFound, CoreIOException, IOException{
+		RandomAccessFile rAF = null;
+		FileOutputStream fOS = null;
 		try {
-			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
+			rAF = new RandomAccessFile(new File(this.getDiskName()), "r");
 			File exportFile = new File(destination);
-			FileOutputStream fOS = new FileOutputStream(exportFile); 
+			fOS =  new FileOutputStream(exportFile); 
 			long position = adress;
 			while (position >= 0){
 				rAF.seek(position*(1024+8+1));
@@ -183,16 +201,23 @@ public class CoreIO {
 			}
 			//Truncating the extra zeroes at the end of the file
 			fOS.getChannel().truncate(size);
-			rAF.close();
-			fOS.close();
-			return true;
+			
+			
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("Import error");
 			
 		} catch (IOException e) {
 			throw new CoreIOException("Import error");
 			
+		} finally {
+			if (rAF!=null){
+				rAF.close();
+			}
+			if (fOS!=null){
+				fOS.close();
+			}
 		}
+		return true;
 	}
 	
 	/**
@@ -258,9 +283,10 @@ public class CoreIO {
 	//DELETING AND COPYING FILES//
 	//--------------------------//
 	
-	public void removeFileAtAddress(long address) throws fileNotFound, CoreIOException {
+	public void removeFileAtAddress(long address) throws fileNotFound, CoreIOException, IOException {
+		RandomAccessFile rAF = null;
 		try {
-			RandomAccessFile rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
+			rAF = new RandomAccessFile(new File(this.getDiskName()), "rw");
 	 
 			long position = address;
 			while (position >= 0){
@@ -276,13 +302,17 @@ public class CoreIO {
 				//marking the block as empty
 				rAF.write(0);
 			}
-			rAF.close();
+			
 		} catch (FileNotFoundException e) {
 			throw new fileNotFound("Import error");
 			
 		} catch (IOException e) {
 			throw new CoreIOException("Import error");
 			
+		} finally {
+			if (rAF!=null){
+				rAF.close();
+			}
 		}
 	}
 	
