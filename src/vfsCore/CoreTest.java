@@ -59,7 +59,7 @@ public class CoreTest {
 	//6
 	@Test
 	public void testList(){
-		assertTrue(testCore.list());
+		testCore.list();
 	}
 	@Test
 	public void testGo(){

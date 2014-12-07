@@ -35,9 +35,9 @@ public class Core {
 				rAF.setLength(size);
 				rAF.seek(rAF.length());
 				rAF.writeLong(size);
-				rAF.close();
-				cio.saveHierarchyToFile(new Folder(null, "", null));
-				return true;
+				fullHierarchy = new Folder(null, "", null);
+				currentHierarchy = fullHierarchy;
+				return saveFullHierarchyToFile();
 			} catch (FileNotFoundException e) {
 				System.out.println("The file doesn't exist");
 				return false;
@@ -99,9 +99,26 @@ public class Core {
 
 	
 	
-	//-----------------------//
-	//MOVING IN THE HIERARCHY//
-	//-----------------------//
+	//----------------------------------//
+	//MOVING IN AND SAVING THE HIERARCHY//
+	//----------------------------------//
+	
+	/**
+	 * save the hierarchy to the currently opened VFS .dsk file
+	 * @return true if the save is successful
+	 */
+	public boolean saveFullHierarchyToFile(){
+		try {
+			cio.saveHierarchyToFile(fullHierarchy);
+			return true;
+		} catch (FileNotFoundException e) {
+			System.out.println("Disk doesn't exist");
+			return false;
+		} catch (IOException e) {
+			System.out.println("Error in the CoreIO");
+			return false;
+		}
+	}
 	
 	/**
 	 * moves to a subHierarchy of the current Hierarchy
@@ -164,7 +181,7 @@ public class Core {
 	public boolean createFolderAtPath(String path, String name) {
 		try {
 			fullHierarchy.createFolderAtPath(path, name);
-			return true;
+			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
 			return false;
@@ -183,7 +200,7 @@ public class Core {
 	public boolean renameFolderAtPath(String path, String name) {
 		try {
 			fullHierarchy.renameFolderAtPath(path, name);
-			return true;
+			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
 			return false;
@@ -203,7 +220,7 @@ public class Core {
 	public boolean createFileAtPath(String path, String name) {
 		try {
 			fullHierarchy.createFileAtPath(path, name);
-			return true;
+			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
 			return false;
@@ -222,7 +239,7 @@ public class Core {
 	public boolean renameFileAtPath(String path, String name) {
 		try {
 			fullHierarchy.renameFileAtPath(path, name);
-			return true;
+			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
 			return false;
@@ -265,8 +282,7 @@ public class Core {
 					//For now, we add it to the root
 					fullHierarchy.addChild(hFile);
 					//And we save the modified Hierarchy
-					cio.saveHierarchyToFile(fullHierarchy);
-					return true;
+					return saveFullHierarchyToFile();
 				} catch (FileNotFoundException e){
 					System.out.println("File not found !");
 					return false;
@@ -287,8 +303,7 @@ public class Core {
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
 					//And we save the modified Hierarchy
-					cio.saveHierarchyToFile(fullHierarchy);
-					return true;
+					return saveFullHierarchyToFile();
 				} catch (FileNotFoundException e){
 					System.out.println("Folder not found !");
 					return false;
@@ -345,7 +360,7 @@ public class Core {
 		try {
 			Hierarchy child = fullHierarchy.findChild(path);
 			deleteFolderOfHierarchy(child);
-			return true;
+			return saveFullHierarchyToFile();
 		} catch (BadPathInstanceException e) {
 			System.out.println("Attention vous devez selectionner un DOSSIER a supprimer");
 			return false;
@@ -401,7 +416,7 @@ public class Core {
 			if(child instanceof vfsCore.File){
 				cio.removeFileAtAddress(((vfsCore.File) child).getAddress());			
 				child.getParent().removeChild(child);
-				return true;
+				return saveFullHierarchyToFile();
 			} else {
 				throw new BadPathInstanceException("vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
 			}
@@ -476,7 +491,7 @@ public class Core {
 				} 
 				//We add the element to the Hierarchy
 				destinationFolder.addChild(new vfsCore.File(original.getName(), newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
-				return true;
+				return saveFullHierarchyToFile();
 			} else {
 				//We want to copy a folder
 				original = ((Folder)original);
@@ -495,7 +510,7 @@ public class Core {
 				}
 				//Finally we add the newly constructed hierarchy to the destination folder
 				destinationFolder.addChild(copyFolder);
-				return true;
+				return saveFullHierarchyToFile();
 			}
 			
 	}
@@ -513,10 +528,9 @@ public class Core {
 			toBeMoved = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
 			if(finalStop instanceof Folder){
-				
 				toBeMoved.getParent().removeChild(toBeMoved);
 				finalStop.addChild(toBeMoved);
-				return true;
+				return saveFullHierarchyToFile();
 			}else{
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
 			}
