@@ -1,6 +1,7 @@
 package vfsCore;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -28,22 +29,30 @@ public class Core {
 	public boolean createDisk(String diskPath, long size) {
 		size = size * (1024+8+1);
 		cio = new CoreIO(diskPath);
-		try (RandomAccessFile randomAccessFile = new RandomAccessFile(new File(diskPath), "rw")) {
-				randomAccessFile.setLength(size);
-				randomAccessFile.seek(randomAccessFile.length());
-				randomAccessFile.writeLong(size);
-				randomAccessFile.close();
+		RandomAccessFile rAF = null;
+		try {
+				rAF = new RandomAccessFile(new File(diskPath), "rw");
+				rAF.setLength(size);
+				rAF.seek(rAF.length());
+				rAF.writeLong(size);
+				rAF.close();
 				cio.saveHierarchyToFile(new Folder(null, "", null));
 				return true;
-			} catch (IOException e) {
-				System.out.println("Error writing file");
-				return false;
-			} catch (CoreIOException e) {
-				System.out.println("Error encountered by CoreIO");
-				return false;
-			} catch (fileNotFound e) {
+			} catch (FileNotFoundException e) {
 				System.out.println("The file doesn't exist");
 				return false;
+			} catch (IOException e) {
+				System.out.println("Error with the CoreIO");
+				return false;
+			} finally {
+				if (rAF != null){
+					try {
+						rAF.close();
+					} catch (IOException e) {
+						System.out.println("IO error");
+						return false;
+					}
+				}
 			}
 		
 	}
@@ -59,11 +68,14 @@ public class Core {
 			fullHierarchy = cio.loadHierarchyTreeFromFile();
 			currentHierarchy = fullHierarchy;
 			return true;
-		} catch (CoreIOException e) {
+		} catch (FileNotFoundException e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		}catch (IOException e) {
 			System.out.println("Error encountered by CoreIO");
 			return false;
-		} catch (fileNotFound e) {
-			System.out.println("The file doesn't exist");
+		}  catch (ClassNotFoundException e){
+			System.out.println("Error with the serialisation");
 			return false;
 		}
 		
@@ -79,7 +91,7 @@ public class Core {
 			File disk = new File(filePath);
 			disk.delete();
 			return true;
-		} catch (NullPointerException e){
+		} catch (Exception e){
 			System.out.println("Error with the file");
 			return false;
 		}	
@@ -91,26 +103,39 @@ public class Core {
 	//MOVING IN THE HIERARCHY//
 	//-----------------------//
 	
-		public boolean goTo(String path){
-			try {
-				currentHierarchy = currentHierarchy.findChild(path);
-				return true;
-			} catch (fileNotFound e) {
-				System.out.println("Sorry, the folder doesn't exists");
-				return false;
-			}
-		}
-		public  boolean goToParent() {
-			if (currentHierarchy.equals(fullHierarchy)){
-				System.out.println("You already are on the root of the vfs disk");
-				return false;
-			} else {
-				currentHierarchy = currentHierarchy.getParent();
-			}
+	/**
+	 * moves to a subHierarchy of the current Hierarchy
+	 * @param path the path to the subhierarchy, relative
+	 * @return true if successful, false else
+	 */
+	public boolean goTo(String path){
+		try {
+			currentHierarchy = currentHierarchy.findChild(path);
 			return true;
+		} catch (fileNotFound e) {
+			System.out.println("Sorry, the folder doesn't exist");
+			return false;
 		}
-		
-		public boolean list(){
+	}
+	
+	/**
+	 * moves to the parent of the current element
+	 * @return true if move successful, false if we are at the root
+	 */
+	public  boolean goToParent() {
+		if (currentHierarchy.equals(fullHierarchy)){
+			System.out.println("You already are on the root of the vfs disk");
+			return false;
+		} else {
+			currentHierarchy = currentHierarchy.getParent();
+		}
+		return true;
+	}
+	
+	/**
+	 * lists the elements stored in the current folder, giving the name of each element, its type (file (f) or Folder (F)), and the size of the files in bytes
+	 */
+	public void list(){
 			String s = "Current: "+currentHierarchy.getName()+"\n";
 			for(Hierarchy child:currentHierarchy.getChildrens()){
 				s = s+"- "+child.getName()+" ";
@@ -122,7 +147,6 @@ public class Core {
 				s = s+"\n";
 			}
 			System.out.println(s);
-			return true;
 		}
 	
 		
@@ -145,7 +169,7 @@ public class Core {
 			System.out.println("The file doesn't exist");
 			return false;
 		} catch (BadPathInstanceException e) {
-			System.out.println("Attention, vous devez fournir un dossier");
+			System.out.println("Please, you need to specify an existing containing folder");
 			return false;
 		}
 	}
@@ -164,7 +188,7 @@ public class Core {
 			System.out.println("The file doesn't exist");
 			return false;
 		} catch (BadPathInstanceException e) {
-			System.out.println("Attention, vous devez fournir un dossier");
+			System.out.println("Please, you need to specify a folder");
 			return false;
 		}
 	}
@@ -184,7 +208,7 @@ public class Core {
 			System.out.println("The file doesn't exist");
 			return false;
 		} catch (BadPathInstanceException e) {
-			System.out.println("Attention, vous devez fournir un dossier");
+			System.out.println("Please, you need to specify a folder");
 			return false;
 		}
 	}
@@ -203,7 +227,7 @@ public class Core {
 			System.out.println("The file doesn't exist");
 			return false;
 		} catch (BadPathInstanceException e) {
-			System.out.println("Attention, vous devez fournir un dossier");
+			System.out.println("Please, you need to specify a file");
 			return false;
 		}
 	}
@@ -243,8 +267,11 @@ public class Core {
 					//And we save the modified Hierarchy
 					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException | CoreIOException | fileNotFound e) {
-					System.out.println("Error importing the file");
+				} catch (FileNotFoundException e){
+					System.out.println("File not found !");
+					return false;
+				} catch (IOException e){
+					System.out.println("Error in the CoreIO");
 					return false;
 				}
 			} else {
@@ -262,8 +289,11 @@ public class Core {
 					//And we save the modified Hierarchy
 					cio.saveHierarchyToFile(fullHierarchy);
 					return true;
-				} catch (IOException | CoreIOException | fileNotFound e) {
-					System.out.println("Error importing the folder");
+				} catch (FileNotFoundException e){
+					System.out.println("Folder not found !");
+					return false;
+				} catch (IOException e){
+					System.out.println("Error in the CoreIO");
 					return false;
 				}
 			}
@@ -316,13 +346,13 @@ public class Core {
 			Hierarchy child = fullHierarchy.findChild(path);
 			deleteFolderOfHierarchy(child);
 			return true;
-		} catch (fileNotFound e) {
-			System.out.println("The file doesn't exist");
-			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("Attention vous devez selectionner un DOSSIER a supprimer");
 			return false;
-		} catch (CoreIOException e) {
+		} catch (FileNotFoundException | fileNotFound e) {
+			System.out.println("The file doesn't exist");
+			return false;
+		} catch (IOException e) {
 			System.out.println("CoreIO exception");
 			return false;
 		}
@@ -333,10 +363,10 @@ public class Core {
 	 * the "tool" method to delete a hierarchy given in parameter 
 	 * @param child
 	 * @throws BadPathInstanceException
-	 * @throws CoreIOException 
-	 * @throws fileNotFound 
+	 * @throws FileNotFound Exception
+	 * @throws IOException 
 	 */
-	public void deleteFolderOfHierarchy(Hierarchy folder) throws BadPathInstanceException, fileNotFound, CoreIOException{
+	public void deleteFolderOfHierarchy(Hierarchy folder) throws BadPathInstanceException, FileNotFoundException, IOException{
 		if (folder instanceof Folder){
 			//deleting the sub-folders and subfiles
 			for(Hierarchy subpath : folder.getChildrens())
@@ -378,11 +408,11 @@ public class Core {
 		} catch (BadPathInstanceException e) {
 			System.out.println("Vous essayer de supprimer un dossier alors que vous devirez supprimer un fichier");
 			return false;
-		} catch (CoreIOException e) {
-			System.out.println("CoreIO exception");
-			return false;
-		} catch (fileNotFound e) {
+		} catch (fileNotFound | FileNotFoundException e) {
 			System.out.println("The file doesn't exist");
+			return false;
+		} catch (IOException e) {
+			System.out.println("CoreIO exception");
 			return false;
 		}
 		
@@ -425,7 +455,7 @@ public class Core {
 	 * @return true if the operation is successful
 	 */
 	public boolean copyElement(Hierarchy original, Folder destinationFolder){
-		//Thank to the check in copyElementAtPath, we are sure destinationfolder is a Folder
+		//Thank to the check in copyElementAtPath, we are sure destinationFolder is a Folder
 			if (original instanceof vfsCore.File){
 				//we want to copy a single file
 				//We check it's size
@@ -437,7 +467,10 @@ public class Core {
 				try {
 					//We pass the copy order to the CoreIO
 					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
-				} catch (IOException | CoreIOException e) {
+				} catch (FileNotFoundException e){
+					System.out.println("The file doesn't exist");
+					return false;
+				} catch (IOException e) {
 					System.out.println("Error in the CoreIO");
 					return false;
 				} 
@@ -483,7 +516,6 @@ public class Core {
 				
 				toBeMoved.getParent().removeChild(toBeMoved);
 				finalStop.addChild(toBeMoved);
-				//toBeMoved.setParent(finalStop);
 				return true;
 			}else{
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");

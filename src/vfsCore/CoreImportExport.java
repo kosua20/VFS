@@ -1,6 +1,7 @@
 package vfsCore;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,14 +18,14 @@ public class CoreImportExport {
 	//------------------//
 	
 	/**
-	 * imports a file(java.io.File) to the root of the VFS disk, and give it the specfied name
+	 * imports a file(java.io.File) to the root of the VFS disk, and give it the specified name
 	 * @param fileToAdd the File to import
 	 * @param name the name of this file on the VFS
 	 * @return the VFS File corresponding to the imported file
 	 * @throws IOException
-	 * @throws CoreIOException
+	 * @throws FileNotFoundException
 	 */
-	public vfsCore.File importFile(File fileToAdd, String name) throws IOException, CoreIOException{
+	public vfsCore.File importFile(File fileToAdd, String name) throws IOException, FileNotFoundException{
 		//We write it to the VFS disk
 		long address = cio.writeToDisk(fileToAdd);
 		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
@@ -37,9 +38,9 @@ public class CoreImportExport {
 	 * @param folderToAdd a java.io.File element corresponding to the folder
 	 * @return a Folder (subclass of Hierarchy) corresponding to the imported folder
 	 * @throws IOException
-	 * @throws CoreIOException
+	 * @throws FileNotFoundException
 	 */
-	public Folder importFolder(File folderToAdd, String name) throws IOException, CoreIOException{
+	public Folder importFolder(File folderToAdd, String name) throws IOException, FileNotFoundException{
 		Folder folder1 = new Folder(new ArrayList<Hierarchy>(), name,null);
 		//We recursively browse the directory and its files & sub-directories
 		for(File file1:folderToAdd.listFiles()){
@@ -68,12 +69,13 @@ public class CoreImportExport {
 		try {
 			System.out.println("Exporting file" + file.getName());
 			//We call readFromAdress, with the size of the file
-			return cio.readFromAdress(file.getAddress(), destination, file.getSize());
-		} catch (fileNotFound e) {
+			cio.readFromAdress(file.getAddress(), destination, file.getSize());
+			return true;
+		} catch (FileNotFoundException e) {
 			System.out.println("Fichier non trouvé");
 			return false;
-		} catch (CoreIOException e) {
-			System.out.println("Error with the coreIO");
+		} catch (Exception e) {
+			System.out.println("Error with the CoreIO");
 			return false;
 		}
 	}
@@ -83,20 +85,22 @@ public class CoreImportExport {
 	 * @param folder the hierarchy Folder to export
 	 * @param destination the name on the folder in the host file system
 	 */
-	public void exportFolder(Folder folder, String destination){
+	public boolean exportFolder(Folder folder, String destination){
 		//Creating the folder
 		System.out.println("exporting folder" + folder.getName());
 		File folder1 = new File(destination);
 		folder1.mkdir();
+		boolean success = true;
 		//Importing sub-directories and files
 		for(Hierarchy file1:folder.getChildrens()){
 			if (file1 instanceof vfsCore.File){
 				//Exporting the file to the correct sub-directory
-				exportFile((vfsCore.File)file1, destination+File.separator+file1.getName());
+				success = success && (exportFile((vfsCore.File)file1, destination+File.separator+file1.getName()));
 			} else {
 				//Exporting the directory to the correct sub-directory
-				exportFolder((Folder)file1, destination+File.separator+file1.getName());
+				success = success && (exportFolder((Folder)file1, destination+File.separator+file1.getName()));
 			}
 	    }
+		return success;
 	}
 }
