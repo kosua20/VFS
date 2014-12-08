@@ -141,11 +141,11 @@ public class Hierarchy implements Serializable, Visitable {
 	/**
 	 * method to go to a path
 	 * will be used in every method that need to access a specific directory or file in the hierarchy
-	 * @param path : path must be a string like "/folder1/subfold1/file.extension" 
+	 * @param path : path must be a string like "/folder1/subfold1/file.extension" or "C:\\folder1\\subfold1\\file.extension"
 	 * @throws fileNotFound 
 	 */
 	public Hierarchy findChild(String path) throws fileNotFound{
-		StringTokenizer st  = new StringTokenizer(path, "/");
+		StringTokenizer st  = new StringTokenizer(path, java.io.File.separator);
 		Hierarchy h1 = this;
 		loopOverToken : while(st.hasMoreTokens()){
 			if (h1.getChildrens() == null){
