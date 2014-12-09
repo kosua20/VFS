@@ -136,9 +136,10 @@ public class Hierarchy implements Serializable, Visitable {
 
 	
 	/**
-	 * method to go to a path
+	 * Method to follow a path in the current Hierarchy and return the Hierarchy element at the given path
 	 * will be used in every method that need to access a specific directory or file in the hierarchy
 	 * @param path : path must be a string like "/folder1/subfold1/file.extension" or "C:\\folder1\\subfold1\\file.extension"
+	 * @return the Hierarchy element at the given path, if it exists
 	 * @throws fileNotFound 
 	 */
 	public Hierarchy findChild(String path) throws fileNotFound{
@@ -157,12 +158,23 @@ public class Hierarchy implements Serializable, Visitable {
 					h1=child;
 					continue loopOverToken;
 				}
-				
 			}
 			throw new fileNotFound("Chemin inexistant");
 		}
-		
 		return h1;
+	}
+	
+	/**
+	 * Method to verify that there is not an element with same name (&extension in case of file). 
+	 * Will be used in every method for creating, moving and copying files & folders
+	 * @throws AlreadyExistException
+	 */
+	public void alreadyExist(String name) throws AlreadyExistException{
+		for(Hierarchy element : this.childrens){
+			if(element.name.equalsIgnoreCase(name)){
+				throw new AlreadyExistException("Attention un fichier ou dossier du meme nom existe deja !");
+			}			
+		}
 	}
 	
 	/**
@@ -187,8 +199,8 @@ public class Hierarchy implements Serializable, Visitable {
 	
 	/**
 	 * rename a folder at a specified path
-	 * @param path
-	 * @param name
+	 * @param path the path o the folder to rename
+	 * @param name the new name of the folder
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 * @throws AlreadyExistException 
@@ -196,7 +208,7 @@ public class Hierarchy implements Serializable, Visitable {
 	public void renameFolderAtPath(String path, String name) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof Folder){
-			child.alreadyExist(name);
+			child.getParent().alreadyExist(name);
 			child.setName(name);
 		}else{
 			throw new BadPathInstanceException("Attention vous essayez de renommer un fichier alors que vous devriez renommer un dossier");
@@ -223,11 +235,10 @@ public class Hierarchy implements Serializable, Visitable {
 	}
 	
 	
-	
 	/**
 	 * rename a file at a specified path
-	 * @param path
-	 * @param name
+	 * @param path the path of the file to rename
+	 * @param name the new name of the file, including the extension
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 * @throws AlreadyExistException 
@@ -235,7 +246,7 @@ public class Hierarchy implements Serializable, Visitable {
 	public void renameFileAtPath(String path, String name) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof File){
-			child.alreadyExist(name);
+			child.getParent().alreadyExist(name);
 			child.setName(name);
 		}else{
 			throw new BadPathInstanceException("Attention vous essayez de renommer un dossier alors que vous devriez renommer un fichier");
@@ -253,25 +264,6 @@ public class Hierarchy implements Serializable, Visitable {
 		} else if (this instanceof vfsCore.File){
 			visitor.visit((vfsCore.File)this);
 		}
-	}
-	
-	/**
-	 * Method to verify that there is not an element with same name (&extension in case of file). 
-	 * Will be used in every method for creating, moving and copying files & folders
-	 * @throws AlreadyExistException
-	 */
-	public void alreadyExist(String name) throws AlreadyExistException{
-		for(Hierarchy element : this.childrens){
-			if(element.name.equalsIgnoreCase(name)){
-				throw new AlreadyExistException("Attention un fichier ou dossier du meme nom existe deja !");
-			}			
-		}
-	}
-
-
-	
-	
-	
-	
+	}	
 	
 }
