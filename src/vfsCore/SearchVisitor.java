@@ -3,8 +3,9 @@ package vfsCore;
 import java.util.ArrayList;
 
 public class SearchVisitor implements Visitor {
-	
+	//This array will be used to store the found files corresponding to the search
 	private ArrayList<Hierarchy> found = new ArrayList<Hierarchy>();
+	//The name we want to find
 	private String search;
 	
 	public SearchVisitor(String search) {
@@ -17,6 +18,7 @@ public class SearchVisitor implements Visitor {
 
 	@Override
 	public void visit(Folder folder) {
+		//If the folder has chilren, and as we are only looking for files, we need to go deeper in the hierarchy
 		if (folder.getChildrens()!=null){
 			for(Hierarchy child:folder.getChildrens()){
 				child.accept(this);

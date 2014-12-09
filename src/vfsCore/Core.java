@@ -238,6 +238,7 @@ public class Core {
 	 */
 	public boolean renameFileAtPath(String path, String name) {
 		try {
+			
 			fullHierarchy.renameFileAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
