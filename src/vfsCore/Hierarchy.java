@@ -135,9 +135,6 @@ public class Hierarchy implements Serializable, Visitable {
 	}
 
 	
-	
-	
-	
 	/**
 	 * method to go to a path
 	 * will be used in every method that need to access a specific directory or file in the hierarchy
@@ -237,7 +234,10 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 	}
 	
-
+	/**
+	 * method used in the visitor pattern
+	 * @param Visitor : the concrete visitor visiting a folder or file
+	 */
 	@Override
 	public void accept(Visitor visitor) {
 		if (this instanceof Folder){
@@ -246,7 +246,19 @@ public class Hierarchy implements Serializable, Visitable {
 			visitor.visit((vfsCore.File)this);
 		}
 	}
-
+	
+	/**
+	 * Method to verify that there is not an element with same name (&extension in case of file). 
+	 * Will be used in every method for creating, moving and copying files & folders
+	 * @throws AlreadyExistException
+	 */
+	public void alreadyExist(String name) throws AlreadyExistException{
+		for(Hierarchy element : this.childrens){
+			if(element.name.equalsIgnoreCase(name)){
+				throw new AlreadyExistException("Attention un fichier ou dossier du meme nom existe deja !");
+			}			
+		}
+	}
 
 
 	

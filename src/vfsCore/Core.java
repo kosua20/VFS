@@ -180,6 +180,7 @@ public class Core {
 	 */
 	public boolean createFolderAtPath(String path, String name) {
 		try {
+			fullHierarchy.alreadyExist(name);
 			fullHierarchy.createFolderAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -187,6 +188,9 @@ public class Core {
 			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("Please, you need to specify an existing containing folder");
+			return false;
+		} catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
 			return false;
 		}
 	}
@@ -199,6 +203,7 @@ public class Core {
 	 */
 	public boolean renameFolderAtPath(String path, String name) {
 		try {
+			fullHierarchy.alreadyExist(name);
 			fullHierarchy.renameFolderAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -206,6 +211,9 @@ public class Core {
 			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("Please, you need to specify a folder");
+			return false;
+		}catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
 			return false;
 		}
 	}
@@ -219,6 +227,7 @@ public class Core {
 	 */
 	public boolean createFileAtPath(String path, String name) {
 		try {
+			fullHierarchy.alreadyExist(name);
 			fullHierarchy.createFileAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -226,6 +235,9 @@ public class Core {
 			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("Please, you need to specify a folder");
+			return false;
+		}catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
 			return false;
 		}
 	}
@@ -238,7 +250,7 @@ public class Core {
 	 */
 	public boolean renameFileAtPath(String path, String name) {
 		try {
-			
+			fullHierarchy.alreadyExist(name);
 			fullHierarchy.renameFileAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -246,6 +258,9 @@ public class Core {
 			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("Please, you need to specify a file");
+			return false;
+		}catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
 			return false;
 		}
 	}
