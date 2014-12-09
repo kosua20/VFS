@@ -465,6 +465,7 @@ public class Core {
 		try {
 			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			finalStop.alreadyExist(toBeCopied.getName());
 			if(finalStop instanceof Folder){
 				return copyElement(toBeCopied, (Folder)finalStop);
 			} else {
@@ -476,7 +477,10 @@ public class Core {
 		} catch (BadPathInstanceException e) {
 			System.out.println("The destination element is a file");
 			return false;
-		}	
+		}	catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
+			return false;
+		}
 	}
 	
 	/**
@@ -497,6 +501,7 @@ public class Core {
 				long newAdress = -1;
 				try {
 					//We pass the copy order to the CoreIO
+					destinationFolder.alreadyExist(original.getName());
 					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
 				} catch (FileNotFoundException e){
 					System.out.println("The file doesn't exist");
@@ -504,7 +509,10 @@ public class Core {
 				} catch (IOException e) {
 					System.out.println("Error in the CoreIO");
 					return false;
-				} 
+				} catch (AlreadyExistException e){
+					System.out.println("Please, change the name of the file, this name is already used here");
+					return false;
+				}
 				//We add the element to the Hierarchy
 				destinationFolder.addChild(new vfsCore.File(original.getName(), newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
 				return saveFullHierarchyToFile();
@@ -543,6 +551,7 @@ public class Core {
 		try {
 			toBeMoved = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			finalStop.alreadyExist(toBeMoved.getName());
 			if(finalStop instanceof Folder){
 				toBeMoved.getParent().removeChild(toBeMoved);
 				finalStop.addChild(toBeMoved);
@@ -555,6 +564,9 @@ public class Core {
 			return false;
 		} catch (BadPathInstanceException e) {
 			System.out.println("attention vous essayer de copier un element dans un fichier !!");
+			return false;
+		}catch (AlreadyExistException e){
+			System.out.println("Please, change the name of the file, this name is already used here");
 			return false;
 		}
 		
