@@ -180,7 +180,6 @@ public class Core {
 	 */
 	public boolean createFolderAtPath(String path, String name) {
 		try {
-			fullHierarchy.alreadyExist(name);
 			fullHierarchy.createFolderAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -203,7 +202,6 @@ public class Core {
 	 */
 	public boolean renameFolderAtPath(String path, String name) {
 		try {
-			fullHierarchy.alreadyExist(name);
 			fullHierarchy.renameFolderAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -227,7 +225,6 @@ public class Core {
 	 */
 	public boolean createFileAtPath(String path, String name) {
 		try {
-			fullHierarchy.alreadyExist(name);
 			fullHierarchy.createFileAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -250,7 +247,6 @@ public class Core {
 	 */
 	public boolean renameFileAtPath(String path, String name) {
 		try {
-			fullHierarchy.alreadyExist(name);
 			fullHierarchy.renameFileAtPath(path, name);
 			return saveFullHierarchyToFile();
 		} catch (fileNotFound e) {
@@ -465,6 +461,7 @@ public class Core {
 		try {
 			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			finalStop.alreadyExist(toBeCopied.getName());
 			if(finalStop instanceof Folder){
 				return copyElement(toBeCopied, (Folder)finalStop);
 			} else {
@@ -500,7 +497,7 @@ public class Core {
 				long newAdress = -1;
 				try {
 					//We pass the copy order to the CoreIO
-					//destinationFolder.alreadyExist(original.getName());
+					destinationFolder.alreadyExist(original.getName());
 					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
 				} catch (FileNotFoundException e){
 					System.out.println("The file doesn't exist");
@@ -550,7 +547,7 @@ public class Core {
 		try {
 			toBeMoved = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
-			//finalStop.alreadyExist(toBeMoved.getName());
+			finalStop.alreadyExist(toBeMoved.getName());
 			if(finalStop instanceof Folder){
 				toBeMoved.getParent().removeChild(toBeMoved);
 				finalStop.addChild(toBeMoved);
