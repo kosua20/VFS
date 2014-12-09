@@ -237,9 +237,6 @@ public class Hierarchy implements Serializable, Visitable {
 		}
 	}
 	
-	
-
-
 
 	@Override
 	public void accept(Visitor visitor) {
