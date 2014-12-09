@@ -171,10 +171,12 @@ public class Hierarchy implements Serializable, Visitable {
 	 * @param nom : the name of the folder
 	 * @throws fileNotFound : exception if path is not found
 	 * @throws BadPathInstanceException : exception is the path is of wrong instance
+	 * @throws AlreadyExistException 
 	 */
-	public void createFolderAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException{
+	public void createFolderAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof Folder){
+			child.alreadyExist(nom);
 			child.addChild(new Folder(null, nom, child));
 		} else {
 			throw new BadPathInstanceException("Attention vous essayer de creer un dossier dans un fichier !");
@@ -189,10 +191,12 @@ public class Hierarchy implements Serializable, Visitable {
 	 * @param name
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
+	 * @throws AlreadyExistException 
 	 */
-	public void renameFolderAtPath(String path, String name) throws fileNotFound, BadPathInstanceException{
+	public void renameFolderAtPath(String path, String name) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof Folder){
+			child.alreadyExist(name);
 			child.setName(name);
 		}else{
 			throw new BadPathInstanceException("Attention vous essayez de renommer un fichier alors que vous devriez renommer un dossier");
@@ -206,10 +210,12 @@ public class Hierarchy implements Serializable, Visitable {
 	 * @param nom : the name of the folder
 	 * @throws fileNotFound : exception if path is not found
 	 * @throws BadPathInstanceException : exception is the path is of wrong instance
+	 * @throws AlreadyExistException 
 	 */
-	public void createFileAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException{
+	public void createFileAtPath(String path, String nom) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof Folder){
+			child.alreadyExist(nom);
 			child.addChild(new File(nom, child));
 		} else {
 			throw new BadPathInstanceException("Attention vous creer un ficher");
@@ -224,10 +230,12 @@ public class Hierarchy implements Serializable, Visitable {
 	 * @param name
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
+	 * @throws AlreadyExistException 
 	 */
-	public void renameFileAtPath(String path, String name) throws fileNotFound, BadPathInstanceException{
+	public void renameFileAtPath(String path, String name) throws fileNotFound, BadPathInstanceException, AlreadyExistException{
 		Hierarchy child = findChild(path);
 		if(child instanceof File){
+			child.alreadyExist(name);
 			child.setName(name);
 		}else{
 			throw new BadPathInstanceException("Attention vous essayez de renommer un dossier alors que vous devriez renommer un fichier");
