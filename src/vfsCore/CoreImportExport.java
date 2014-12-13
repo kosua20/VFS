@@ -67,7 +67,7 @@ public class CoreImportExport {
 	 */
 	public boolean exportFile(vfsCore.File file, String destination){
 		try {
-			System.out.println("Exporting file" + file.getName());
+			//System.out.println("Exporting file" + file.getName());
 			//We call readFromAdress, with the size of the file
 			cio.readFromAdress(file.getAddress(), destination, file.getSize());
 			return true;
@@ -87,7 +87,7 @@ public class CoreImportExport {
 	 */
 	public boolean exportFolder(Folder folder, String destination){
 		//Creating the folder
-		System.out.println("exporting folder" + folder.getName());
+		//System.out.println("exporting folder" + folder.getName());
 		File folder1 = new File(destination);
 		folder1.mkdir();
 		boolean success = true;

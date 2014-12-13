@@ -43,8 +43,11 @@ public class Hierarchy implements Serializable, Visitable {
 			for(Hierarchy child:childrens){
 				child.setParent(this);
 			}
+			this.childrens = childrens;
+		} else {
+			this.childrens = new ArrayList<Hierarchy>();
 		}
-		this.childrens = childrens;
+		
 		this.name = name;
 		this.parent=parent;
 	}
@@ -55,6 +58,7 @@ public class Hierarchy implements Serializable, Visitable {
 	public Hierarchy(String name) {
 		super();
 		this.name = name;
+		this.childrens = new ArrayList<Hierarchy>();
 	}
 	/**
 	 * 
@@ -65,6 +69,7 @@ public class Hierarchy implements Serializable, Visitable {
 		super();
 		this.name = name;
 		this.parent=parent;
+		this.childrens = new ArrayList<Hierarchy>();
 	}
 	/**
 	 * @return the name
@@ -136,8 +141,11 @@ public class Hierarchy implements Serializable, Visitable {
 			for(Hierarchy child:childrens){
 				child.setParent(this);
 			}
+			this.childrens = childrens;
+		} else {
+			this.childrens = new ArrayList<Hierarchy>();
 		}
-		this.childrens = childrens;
+		
 	}
 
 	
@@ -176,11 +184,13 @@ public class Hierarchy implements Serializable, Visitable {
 	 * @throws AlreadyExistException
 	 */
 	public void alreadyExist(String name) throws AlreadyExistException{
+		if (this.childrens == null){return;}
 		for(Hierarchy element : this.childrens){
 			if(element.name.equalsIgnoreCase(name)){
 				throw new AlreadyExistException("Attention un fichier ou dossier du meme nom existe deja !");
 			}			
 		}
+		return;
 	}
 	
 	/**

@@ -318,6 +318,7 @@ public class Core {
 				try {
 					//We import it
 					vfsCore.Folder hFolder = cie.importFolder(fileToAdd, VFSPath);
+					System.out.println("Folder name :"+hFolder.getName());
 					//For now, we add them to the root
 					fullHierarchy.addChild(hFolder);
 					//And we save the modified Hierarchy
@@ -351,9 +352,9 @@ public class Core {
 			//We find the pointer to the Hierarchy element at the given VFSPath
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
-				cie.exportFile((vfsCore.File)origin, homePath);
+				return cie.exportFile((vfsCore.File)origin, homePath);
 			} else {
-				cie.exportFolder((Folder)origin, homePath);
+				return cie.exportFolder((Folder)origin, homePath);
 			}
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
