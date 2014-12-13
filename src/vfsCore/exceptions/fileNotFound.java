@@ -1,4 +1,4 @@
-package vfsCore;
+package vfsCore.exceptions;
 
 public class fileNotFound extends Exception {
 

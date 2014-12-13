@@ -6,6 +6,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
+import vfsCore.exceptions.AlreadyExistException;
+import vfsCore.exceptions.BadPathInstanceException;
+import vfsCore.exceptions.fileNotFound;
+import vfsCore.visitors.SearchVisitor;
+import vfsCore.visitors.SizeVisitor;
+
 
 public class Core {
 	//ATTRIBUTES

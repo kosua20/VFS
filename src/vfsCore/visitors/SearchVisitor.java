@@ -1,6 +1,10 @@
-package vfsCore;
+package vfsCore.visitors;
 
 import java.util.ArrayList;
+
+import vfsCore.File;
+import vfsCore.Folder;
+import vfsCore.Hierarchy;
 
 public class SearchVisitor implements Visitor {
 	//This array will be used to store the found files corresponding to the search

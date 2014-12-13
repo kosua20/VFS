@@ -4,6 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import vfsCore.exceptions.AlreadyExistException;
+import vfsCore.exceptions.BadPathInstanceException;
+import vfsCore.exceptions.fileNotFound;
+import vfsCore.visitors.Visitable;
+import vfsCore.visitors.Visitor;
+
 public class Hierarchy implements Serializable, Visitable {
 	
 	//-----------------------------------------//
