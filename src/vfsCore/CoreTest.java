@@ -80,12 +80,19 @@ public class CoreTest {
 		resetDisk();
 		testCore.createFolderAtPath("/","folder2");
 		testCore.createFolderAtPath("/","folder3");
+		testCore.createFolderAtPath("/folder3","subfolder4");
+		testCore.createFolderAtPath("/folder3/subfolder4","subsubfolder5");
+		testCore.createFileAtPath("/folder3/subfolder4","th.txt");
 		System.out.println("Delete liste 1");
 		testCore.list();
 		assertTrue(testCore.deleteFolderAtPath("/folder2"));
-		assertFalse(testCore.deleteFolderAtPath("/folder167777"));
-		System.out.println("Delete liste 2");
 		testCore.list();
+		assertTrue(testCore.deleteFolderAtPath("/folder3/subfolder4"));
+		testCore.goTo("/folder3");
+		testCore.list();
+		testCore.goToParent();
+		assertFalse(testCore.deleteFolderAtPath("/folder167777"));
+		System.out.println("End of test");
 	}
 	@Test
 	public void testRenamingFolder(){
@@ -95,6 +102,7 @@ public class CoreTest {
 		assertTrue(testCore.renameFolderAtPath("/folder1","folderNew"));
 		System.out.println("Rename list 2");
 		testCore.list();
+		System.out.println("End of test");
 	}
 	//Files
 	@Test
@@ -124,6 +132,7 @@ public class CoreTest {
 		createArborescence();
 		System.out.println("Test list");
 		testCore.list();
+		System.out.println("End of test");
 	}
 	@Test
 	public void testGo(){
@@ -133,7 +142,7 @@ public class CoreTest {
 		testCore.list();
 		createArborescence();
 		assertFalse(testCore.goTo("/folder1/folder2"));
-		
+		System.out.println("End of test");
 	}
 	@Test
 	public void testGoToParent(){
@@ -145,6 +154,7 @@ public class CoreTest {
 		testCore.list();
 		testCore.goToParent();
 		assertFalse(testCore.goToParent());
+		System.out.println("End of test");
 	}
 	
 	//7
@@ -166,6 +176,7 @@ public class CoreTest {
 		testCore.goTo("folder1");
 		testCore.list();
 		assertFalse(testCore.moveElement("/folder2","/folder1/folder3/folder2"));
+		System.out.println("End of test");
 	}
 	@Test
 	public void testCopyElement(){
@@ -190,6 +201,7 @@ public class CoreTest {
 		testCore.goTo("/folder2");
 		testCore.list();
 		assertTrue(testCore.exportElement("/folder2/file1.txt", "test/testCopy1.txt"));
+		System.out.println("End of test");
 	}
 	
 	//8
@@ -202,6 +214,7 @@ public class CoreTest {
 		testCore.list();
 		testCore.goTo("folder2");
 		testCore.list();
+		System.out.println("End of test");
 	}
 	
 	//9
@@ -211,6 +224,7 @@ public class CoreTest {
 		System.out.println("Test export");
 		assertTrue(testCore.exportElement("/file1.txt","test/test23.txt"));
 		assertTrue(testCore.exportElement("/folder2","test/test34"));
+		System.out.println("End of test");
 	}
 	
 	//10
@@ -230,6 +244,9 @@ public class CoreTest {
 		assertEquals(23000*1024,testCore.getTotalSpace());
 	}
 	
+	//Tests for files/folders bigger than teh VFS disk
+	
+	
 	//11
 	@Test
 	public void testSearch(){
@@ -237,6 +254,7 @@ public class CoreTest {
 		System.out.println("Test search");
 		assertTrue(testCore.searchFile("truc").equals(new ArrayList<Hierarchy>()));
 		testCore.printSearch("t3.jpg");
+		System.out.println("End of test\n\n");
 	}
 	
 }
