@@ -2,7 +2,12 @@ package vfsCore.visitors;
 
 import vfsCore.Folder;
 import vfsCore.Hierarchy;
-
+/**
+ * The SizeVisitor is designed to calculate the size of any given Hierarchy, taking into account all its subfolders and files.
+ * It has a long property denoting the size of the Hierarchy.
+ * @author simon
+ *
+ */
 public class SizeVisitor implements Visitor{
 
 	private long sizeUsed = 0;
@@ -10,6 +15,7 @@ public class SizeVisitor implements Visitor{
 	@Override
 	public void visit(Hierarchy object){}
 	
+	@Override
 	public void visit(Folder folder) {
 		//For a folder, its size is zero
 		if (folder.getChildren()==null){
@@ -29,6 +35,10 @@ public class SizeVisitor implements Visitor{
 		
 	}
 	
+	/**
+	 * 
+	 * @return the size of the visited elements
+	 */
 	public long getSizeUsed(){
 		return sizeUsed;
 	}

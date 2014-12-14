@@ -12,11 +12,23 @@ import vfsCore.exceptions.fileNotFound;
 import vfsCore.visitors.SearchVisitor;
 import vfsCore.visitors.SizeVisitor;
 
-
+/**
+ * The Core is the most important part of our VFS implementation. 
+ * It is responsible for providing an access to any operation the user might want to do on the VFS disk currently loaded.
+ * It is the main operating class, providing a link between the logical layer (Hierarchy) and the physical one (through CoreIo and CoreImportExport).
+ * @author simon
+ *
+ */
 public class Core {
 	//ATTRIBUTES
+	/**
+	 * attributes allowing to keep track of our current position in the Hierarchy and access it
+	 */
 	private Folder fullHierarchy;
 	private Folder currentHierarchy;
+	/**
+	 * instances of CoreIO and CoreImportExport devoted to managing a specific VFS .dsk file 
+	 */
 	private CoreIO cio;
 	private CoreImportExport cie;
 	

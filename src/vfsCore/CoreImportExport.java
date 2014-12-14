@@ -4,14 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-
+/**
+ * The CoreImportExport is an intermediate class between the generality of the Core class and the specificity of the CoreIO class.
+ * It provides a bridge between those two classes, specialized in the import and export of files and folders. 
+ * @author simon
+ *
+ */
 public class CoreImportExport {
 	/**
 	 * the CoreIO instance associated with this CoreImportExport
 	 */
 	private CoreIO cio;
 	/**
-	 * constructor
+	 * Constructor, using a CoreIO parameter
 	 * @param cio
 	 */
 	public CoreImportExport(CoreIO cio) {

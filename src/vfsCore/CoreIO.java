@@ -11,7 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 /**
- * The CoreIO manages all the input/output stuff. It is an interface between the Core manipulating the hierarchy, and the .dsk file where the VFS disk is stored
+ * The CoreIO manages all the input/output methods. It is an interface between the Core manipulating the hierarchy, and the .dsk file where the VFS disk is stored
  * The .dsk has a specific structure, described in our report. It is composed of (and in this order) : 
  * - the data of the files stored on the VFS, 
  * - a serialized version of the hierarchy, 
@@ -23,6 +23,10 @@ import java.io.RandomAccessFile;
 public class CoreIO {
 	//ATTRIBUTES, CONSTRUCTOR, GETTERS/SETTERS
 	private String diskName;
+	/**
+	 * Constructor, passing the name of the VFS disk to use as a parameter
+	 * @param diskName
+	 */
 	public CoreIO(String diskName) {
 		super();
 		this.diskName = diskName;

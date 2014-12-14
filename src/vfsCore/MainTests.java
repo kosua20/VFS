@@ -1,9 +1,8 @@
 package vfsCore;
 
 
-
 public class MainTests {
-
+	//Just a few manual tests
 	public static void main(String[] args) {
 		Core c =  new Core();
 		c.deleteDisk("test.dsk");
