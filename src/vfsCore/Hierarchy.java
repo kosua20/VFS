@@ -76,7 +76,7 @@ public abstract class Hierarchy implements Serializable, Visitable {
 	
 	/**
 	 * method used in the visitor pattern
-	 * @param Visitor : the concrete visitor visiting a folder or file
+	 * @param visitor : the concrete visitor visiting a folder or file
 	 */
 	@Override
 	public void accept(Visitor visitor) {

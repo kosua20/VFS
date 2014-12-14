@@ -423,7 +423,7 @@ public class Core {
 	
 	/**
 	 * the "tool" method to delete a hierarchy given in parameter 
-	 * @param child
+	 * @param folder the folder to delete
 	 * @throws BadPathInstanceException
 	 * @throws FileNotFound Exception
 	 * @throws IOException 
