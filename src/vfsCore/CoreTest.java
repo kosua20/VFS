@@ -8,10 +8,10 @@ import org.junit.Test;
 //TDD
 public class CoreTest {
 	Core testCore = new Core();
-	//Requirements
+	//Helpers
 	public void resetDisk(){
 		testCore.deleteDisk("test/testDisk.dsk");
-		testCore.createDisk("test/testDisk.dsk", 23000);
+		testCore.createDisk("test/testDisk.dsk", 8000);
 		testCore.openDisk("test/testDisk.dsk");
 	}
 	
@@ -29,22 +29,22 @@ public class CoreTest {
 	
 	public void createDiskWithData(){
 		resetDisk();
-		testCore.importElement("test/test1.txt","file1.txt");
-		testCore.importElement("test/test2","folder2");
+		testCore.importElement("test/ressources/test1.txt","file1.txt");
+		testCore.importElement("test/ressources/test2","folder2");
 		
 	}
 	
 	//1 and 2
 	@Test
 	public void testCreationOfDisk(){
-		assertTrue(testCore.createDisk("test/testDisk.dsk", 23000));
+		assertTrue(testCore.createDisk("test/testDisk.dsk", 8000));
 		
 	}
 	
 	//3
 	@Test
 	public void testOpeningOfDisk(){
-		testCore.createDisk("test/testDisk.dsk", 23000);
+		testCore.createDisk("test/testDisk.dsk", 8000);
 		assertTrue(testCore.openDisk("test/testDisk.dsk"));
 	} 
 	
@@ -83,7 +83,7 @@ public class CoreTest {
 		testCore.createFolderAtPath("/folder3","subfolder4");
 		testCore.createFolderAtPath("/folder3/subfolder4","subsubfolder5");
 		testCore.createFileAtPath("/folder3/subfolder4","th.txt");
-		System.out.println("Delete liste 1");
+		System.out.println("Test delete");
 		testCore.list();
 		assertTrue(testCore.deleteFolderAtPath("/folder2"));
 		testCore.list();
@@ -175,9 +175,16 @@ public class CoreTest {
 		testCore.list();
 		testCore.goTo("folder1");
 		testCore.list();
-		assertFalse(testCore.moveElement("/folder2","/folder1/folder3/folder2"));
+		assertFalse(testCore.moveElement("/folder2","/folder1/folder3"));
 		System.out.println("End of test");
 	}
+	
+	@Test
+	public void preventMoveOfFolderInItself(){
+		createDiskWithData();
+		assertFalse(testCore.moveElement("/folder2", "/folder2/sub1"));
+	}
+	
 	@Test
 	public void testCopyElement(){
 		createDiskWithData();
@@ -204,12 +211,13 @@ public class CoreTest {
 		System.out.println("End of test");
 	}
 	
+	
 	//8
 	@Test
 	public void testImportElement(){
 		resetDisk();
-		assertTrue(testCore.importElement("test/test1.txt","file1.txt"));
-		assertTrue(testCore.importElement("test/test2","folder2"));
+		assertTrue(testCore.importElement("test/ressources/test1.txt","file1.txt"));
+		assertTrue(testCore.importElement("test/ressources/test2","folder2"));
 		System.out.println("Test import");
 		testCore.list();
 		testCore.goTo("folder2");
@@ -231,21 +239,50 @@ public class CoreTest {
 	@Test
 	public void testFreeSpace(){
 		createDiskWithData();
-		assertEquals(23000*1024-562669,testCore.getFreeSpace());
+		assertEquals(8000*1024-885568,testCore.getFreeSpace());
 	}
 	@Test
 	public void testUsedSpace(){
 		createDiskWithData();
-		assertEquals(562669,testCore.getUsedSpace());
+		assertEquals(885568,testCore.getUsedSpace());
 	}
 	@Test
 	public void testTotalSize(){
 		createDiskWithData();
-		assertEquals(23000*1024,testCore.getTotalSpace());
+		assertEquals(8000*1024,testCore.getTotalSpace());
 	}
 	
-	//Tests for files/folders bigger than teh VFS disk
+	//Tests for files/folders bigger than the VFS disk
+	/* IMPORTANT :
+	 * we commented this test out because we are not providing the files used for it, 
+	 * in order to diminish the weight of our compressed project
+	 */
+	/*
+	@Test
+	public void rejectFileTooBig(){
+		createDiskWithData();
+		//In Import
+		//(file of size 40MB)
+		assertFalse(testCore.importElement("test/Ecran.psd", "ecran.psd"));
+		//In Copy
+		//(file of size 8MB, copied 2 times)
+		testCore.importElement("test/cartes.psd", "cartes1.psd");
+		testCore.copyElementAtPath("cartes1.psd", "cartes2.psd");
+		assertFalse(testCore.copyElementAtPath("cartes1.psd", "cartes3.psd"));
+		//Test with a folder
+		assertFalse(testCore.importElement("test/heavy", "heavy"));
+	}*/
 	
+	@Test
+	public void rejectElementAlreadyExists(){
+		createArborescence();
+		System.out.println("Test Already Exists");
+		assertFalse(testCore.renameFolderAtPath("/folder2/subfolder1", "subfolder2"));
+		testCore.goTo("/folder2");
+		testCore.list();
+		System.out.println("End of test \n\n");
+		
+	}
 	
 	//11
 	@Test
@@ -256,5 +293,7 @@ public class CoreTest {
 		testCore.printSearch("t3.jpg");
 		System.out.println("End of test\n\n");
 	}
+	
+	
 	
 }

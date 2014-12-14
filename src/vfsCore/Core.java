@@ -496,7 +496,7 @@ public class Core {
 		//Thank to the check in copyElementAtPath, we are sure destinationFolder is a Folder
 			if (original instanceof vfsCore.File){
 				//we want to copy a single file
-				//We check it's size
+				//We check its size
 				if (((vfsCore.File) original).getSize() >= getFreeSpace()){
 					System.out.println("Pas assez de place sur le disque");
 					return false;
@@ -556,6 +556,12 @@ public class Core {
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
 			finalStop.alreadyExist(toBeMoved.getName());
 			if(finalStop instanceof Folder){
+				//If we move a folder, we first have to check that we are not trying to move it in one of its own subfolders
+				if (toBeMoved instanceof Folder && toBeMoved.hasAsChild(finalStop)){
+					System.out.println("Trying to move a folder in one of its subfolders");
+					return false;
+				}
+				//Then we can execute the move
 				toBeMoved.getParent().removeChild(toBeMoved);
 				finalStop.addChild(toBeMoved);
 				return saveFullHierarchyToFile();

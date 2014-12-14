@@ -194,6 +194,23 @@ public class Hierarchy implements Serializable, Visitable {
 	}
 	
 	/**
+	 * checks if a Hierarchy element is contained in a sub-folder of the current Hierarchy
+	 * @param potentialChild
+	 * @return true if potentialChild is in the subfolders of the Hierarchy element
+	 */
+	public boolean hasAsChild(Hierarchy potentialChild){
+		if (this.childrens == null){return false;}
+		for(Hierarchy element : this.childrens){
+			if (element.equals(potentialChild)){
+				return true;
+			} else if (element.hasAsChild(potentialChild)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * method to create a folder at a specific path, with a specified name
 	 * @param path : the string of the path (without the folder name)
 	 * @param nom : the name of the folder
