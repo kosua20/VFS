@@ -24,7 +24,6 @@ public class MainTests {
 		c.goToParent();
 		c.list();
 		
-		c.printSearch("various.pdf");
 	}
 
 }
