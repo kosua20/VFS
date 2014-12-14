@@ -1,5 +1,11 @@
 package vfsCore;
 
+/**
+ * this is a class representing one of the two types of hierarchy element.
+ * files contains extra fileds such as address and size
+ * @author michaellavner
+ *
+ */
 
 public class File extends Hierarchy{
 	/**

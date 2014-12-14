@@ -5,6 +5,13 @@ import java.io.Serializable;
 import vfsCore.visitors.Visitable;
 import vfsCore.visitors.Visitor;
 
+/**
+ * 
+ * this class represents any hierarchy elements, it is serializable and visitable
+ * it will be the super class for folders and files
+ * @author michaellavner
+ *
+ */
 public abstract class Hierarchy implements Serializable, Visitable {
 	
 	//-----------------------------------------//

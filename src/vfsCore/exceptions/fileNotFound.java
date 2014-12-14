@@ -1,5 +1,10 @@
 package vfsCore.exceptions;
-
+/**
+ * 
+ * this exception is used when looking for files by path
+ * @author michaellavner
+ *
+ */
 public class fileNotFound extends Exception {
 
 	/**

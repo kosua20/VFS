@@ -7,6 +7,13 @@ import vfsCore.exceptions.AlreadyExistException;
 import vfsCore.exceptions.BadPathInstanceException;
 import vfsCore.exceptions.fileNotFound;
 
+
+/**
+ * this is a class representing one of the two types of hierarchy element.
+ * folder contains a lot of methods used for managing children
+ * @author michaellavner
+ *
+ */
 public class Folder extends Hierarchy{
 	
 	

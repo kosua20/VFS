@@ -6,6 +6,12 @@ import org.junit.Test;
 
 import vfsCore.exceptions.fileNotFound;
 
+/**
+ * tests for folders (hierarchy) methods
+ * @author michaellavner
+ *
+ */
+
 public class FolderTest {
 	/* IMPORTANT
 	 * createFolderAtPath()
