@@ -11,16 +11,14 @@ public class File extends Hierarchy{
 	private long address=-1;
 	private long size = 0;
 
-	public File(String name, long address, long size, Hierarchy parent) {
+	public File(String name, long address, long size, Folder parent) {
 		super(name, parent);
-		super.setChildrens(null);
 		this.address=address;
 		this.size=size;
 	}
 	
-	public File(String name, Hierarchy parent){
+	public File(String name, Folder parent){
 		super(name, parent);
-		super.setChildrens(null);
 	}
 	
 

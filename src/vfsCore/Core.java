@@ -15,8 +15,8 @@ import vfsCore.visitors.SizeVisitor;
 
 public class Core {
 	//ATTRIBUTES
-	private Hierarchy fullHierarchy;
-	private Hierarchy currentHierarchy;
+	private Folder fullHierarchy;
+	private Folder currentHierarchy;
 	private CoreIO cio;
 	private CoreImportExport cie;
 	
@@ -71,7 +71,7 @@ public class Core {
 	public boolean openDisk(String filePath) {
 		cio = new CoreIO(filePath);
 		try {
-			fullHierarchy = cio.loadHierarchyTreeFromFile();
+			fullHierarchy = ((Folder)cio.loadHierarchyTreeFromFile());
 			currentHierarchy = fullHierarchy;
 			return true;
 		} catch (FileNotFoundException e) {
@@ -146,9 +146,9 @@ public class Core {
 			if (tempHierarchy instanceof vfsCore.File){
 				//if the destination is a file, we switch to its parent
 				currentHierarchy = tempHierarchy.getParent();
-			} else {
+			} else if (tempHierarchy instanceof Folder){
 				//else, we are in the right folder
-				currentHierarchy = tempHierarchy;
+				currentHierarchy = (Folder)tempHierarchy;
 			}
 			return true;
 		} catch (fileNotFound e) {
@@ -419,7 +419,7 @@ public class Core {
 	public void deleteFolderOfHierarchy(Hierarchy folder) throws BadPathInstanceException, FileNotFoundException, IOException{
 		if (folder instanceof Folder){
 			//deleting the sub-folders and subfiles
-			for(Hierarchy subpath : folder.getChildrens())
+			for(Hierarchy subpath : ((Folder)folder).getChildrens())
 			{		
 				if(subpath instanceof Folder){
 					deleteFolderOfHierarchy(subpath);
@@ -429,7 +429,7 @@ public class Core {
 				}
 				//In all cases, we remove the element from the children list
 				//maybe only in the case of a file
-				folder.removeChild(subpath);
+				((Folder)folder).removeChild(subpath);
 			}
 			//deleting the folder itself
 			folder.getParent().removeChild(folder);
@@ -483,8 +483,9 @@ public class Core {
 		try {
 			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
-			finalStop.alreadyExist(toBeCopied.getName());
+			
 			if(finalStop instanceof Folder){
+				((Folder)finalStop).alreadyExist(toBeCopied.getName());
 				return copyElement(toBeCopied, (Folder)finalStop);
 			} else {
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
@@ -536,18 +537,18 @@ public class Core {
 				return saveFullHierarchyToFile();
 			} else {
 				//We want to copy a folder
-				original = ((Folder)original);
+				Folder original1 = ((Folder)original);
 				//First we check the available size
 				SizeVisitor sz = new SizeVisitor();
-				sz.visit(original);
+				sz.visit(original1);
 				if(sz.getSizeUsed() >= getFreeSpace()){
 					System.out.println("Pas assez de place sur le disque");
 					return false;
 				}
 				//Then we create the new folder, empty
-				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),original.getName(),destinationFolder);
+				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),original1.getName(),destinationFolder);
 				//And we add its children
-				for(Hierarchy child:original.getChildrens()){
+				for(Hierarchy child:original1.getChildrens()){
 					copyElement(child, copyFolder);
 				}
 				//Finally we add the newly constructed hierarchy to the destination folder
@@ -569,16 +570,17 @@ public class Core {
 		try {
 			toBeMoved = fullHierarchy.findChild(departure);
 			Hierarchy finalStop = fullHierarchy.findChild(destination);
-			finalStop.alreadyExist(toBeMoved.getName());
+			
 			if(finalStop instanceof Folder){
+				((Folder)finalStop).alreadyExist(toBeMoved.getName());
 				//If we move a folder, we first have to check that we are not trying to move it in one of its own subfolders
-				if (toBeMoved instanceof Folder && toBeMoved.hasAsChild(finalStop)){
+				if (toBeMoved instanceof Folder && ((Folder)toBeMoved).hasAsChild(finalStop)){
 					System.out.println("Trying to move a folder in one of its subfolders");
 					return false;
 				}
 				//Then we can execute the move
 				toBeMoved.getParent().removeChild(toBeMoved);
-				finalStop.addChild(toBeMoved);
+				((Folder)finalStop).addChild(toBeMoved);
 				return saveFullHierarchyToFile();
 			}else{
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
