@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_901LcH_fEeS1oKSnefsd4Q" name="model">
-  <packagedElement xmi:type="uml:Interface" xmi:id="_C0PEsH_gEeS1oKSnefsd4Q" name="Hierarchy"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_crbvYH_kEeS1oKSnefsd4Q" name="File">
-    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_nWp78H_kEeS1oKSnefsd4Q" client="_crbvYH_kEeS1oKSnefsd4Q" supplier="_C0PEsH_gEeS1oKSnefsd4Q" contract="_C0PEsH_gEeS1oKSnefsd4Q"/>
+    <generalization xmi:type="uml:Generalization" xmi:id="_dIIUUIPHEeSmMMB4f_MFKQ" general="_ViupMIPHEeSmMMB4f_MFKQ"/>
     <nestedClassifier xmi:type="uml:Class" xmi:id="_d8Fe8H_kEeS1oKSnefsd4Q" name="File"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_jZlCYH_kEeS1oKSnefsd4Q" name="Folder">
-    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_oRPU4H_kEeS1oKSnefsd4Q" client="_jZlCYH_kEeS1oKSnefsd4Q" supplier="_C0PEsH_gEeS1oKSnefsd4Q" contract="_C0PEsH_gEeS1oKSnefsd4Q"/>
+    <generalization xmi:type="uml:Generalization" xmi:id="_d3y2sIPHEeSmMMB4f_MFKQ" general="_ViupMIPHEeSmMMB4f_MFKQ"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Interface" xmi:id="_zn7gUH_kEeS1oKSnefsd4Q" name="Visitable"/>
   <packagedElement xmi:type="uml:Interface" xmi:id="_0z1SwH_kEeS1oKSnefsd4Q" name="Visitor"/>
-  <packagedElement xmi:type="uml:Dependency" xmi:id="_79_zYH_kEeS1oKSnefsd4Q" client="_C0PEsH_gEeS1oKSnefsd4Q" supplier="_zn7gUH_kEeS1oKSnefsd4Q"/>
   <packagedElement xmi:type="uml:Class" xmi:id="__q8mQH_kEeS1oKSnefsd4Q" name="SearchVisitor">
     <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_FsKh0H_lEeS1oKSnefsd4Q" client="__q8mQH_kEeS1oKSnefsd4Q" supplier="_0z1SwH_kEeS1oKSnefsd4Q" contract="_0z1SwH_kEeS1oKSnefsd4Q"/>
   </packagedElement>
@@ -18,9 +16,13 @@
     <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_E4PKgH_lEeS1oKSnefsd4Q" client="_BweIUH_lEeS1oKSnefsd4Q" supplier="_0z1SwH_kEeS1oKSnefsd4Q" contract="_0z1SwH_kEeS1oKSnefsd4Q"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_LCqFYH_lEeS1oKSnefsd4Q" name="Core">
-    <ownedAttribute xmi:type="uml:Property" xmi:id="_lih2cH_lEeS1oKSnefsd4Q" name="hierarchy" type="_C0PEsH_gEeS1oKSnefsd4Q" association="_lijEkH_lEeS1oKSnefsd4Q">
+    <ownedAttribute xmi:type="uml:Property" xmi:id="_lih2cH_lEeS1oKSnefsd4Q" name="hierarchy">
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lih2cX_lEeS1oKSnefsd4Q" value="1"/>
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_lih2cn_lEeS1oKSnefsd4Q" value="1"/>
+    </ownedAttribute>
+    <ownedAttribute xmi:type="uml:Property" xmi:id="_faagAIPHEeSmMMB4f_MFKQ" name="hierarchy" type="_ViupMIPHEeSmMMB4f_MFKQ" association="_facVMIPHEeSmMMB4f_MFKQ">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_faagAYPHEeSmMMB4f_MFKQ" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_faagAoPHEeSmMMB4f_MFKQ" value="1"/>
     </ownedAttribute>
   </packagedElement>
   <packagedElement xmi:type="uml:Class" xmi:id="_S47eEH_lEeS1oKSnefsd4Q" name="CoreImportExport">
@@ -49,11 +51,14 @@
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_YcChUn_lEeS1oKSnefsd4Q" value="1"/>
     </ownedEnd>
   </packagedElement>
-  <packagedElement xmi:type="uml:Association" xmi:id="_lijEkH_lEeS1oKSnefsd4Q" memberEnd="_lijEkX_lEeS1oKSnefsd4Q _lih2cH_lEeS1oKSnefsd4Q">
+  <packagedElement xmi:type="uml:Class" xmi:id="_ViupMIPHEeSmMMB4f_MFKQ" name="Hierarchy">
+    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_h5bgIIPHEeSmMMB4f_MFKQ" client="_ViupMIPHEeSmMMB4f_MFKQ" supplier="_zn7gUH_kEeS1oKSnefsd4Q" contract="_zn7gUH_kEeS1oKSnefsd4Q"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_facVMIPHEeSmMMB4f_MFKQ" memberEnd="_facVMYPHEeSmMMB4f_MFKQ _faagAIPHEeSmMMB4f_MFKQ">
     <name xsi:nil="true"/>
-    <ownedEnd xmi:type="uml:Property" xmi:id="_lijEkX_lEeS1oKSnefsd4Q" name="core" type="_LCqFYH_lEeS1oKSnefsd4Q" association="_lijEkH_lEeS1oKSnefsd4Q">
-      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_lijEkn_lEeS1oKSnefsd4Q" value="1"/>
-      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_lijEk3_lEeS1oKSnefsd4Q" value="1"/>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_facVMYPHEeSmMMB4f_MFKQ" name="core" type="_LCqFYH_lEeS1oKSnefsd4Q" association="_facVMIPHEeSmMMB4f_MFKQ">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_facVMoPHEeSmMMB4f_MFKQ" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_facVM4PHEeSmMMB4f_MFKQ" value="1"/>
     </ownedEnd>
   </packagedElement>
 </uml:Model>
