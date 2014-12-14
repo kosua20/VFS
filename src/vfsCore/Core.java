@@ -127,13 +127,29 @@ public class Core {
 	}
 	
 	/**
-	 * moves to a subHierarchy of the current Hierarchy
-	 * @param path the path to the subhierarchy, relative
+	 * moves to a folder
+	 * @param path the path to the sub-hierarchy, relative o
 	 * @return true if successful, false else
 	 */
 	public boolean goTo(String path){
 		try {
-			currentHierarchy = currentHierarchy.findChild(path);
+			Hierarchy tempHierarchy;
+			//We check if the path is absolute or relative
+			if(path.charAt(0) == (File.separatorChar)){
+				//Absolute : following the path from the root
+				tempHierarchy = fullHierarchy.findChild(path);
+			} else {
+				//Relative : following the path from the current node
+				tempHierarchy = currentHierarchy.findChild(path);
+			}
+			//We now have our desired destination
+			if (tempHierarchy instanceof vfsCore.File){
+				//if the destination is a file, we switch to its parent
+				currentHierarchy = tempHierarchy.getParent();
+			} else {
+				//else, we are in the right folder
+				currentHierarchy = tempHierarchy;
+			}
 			return true;
 		} catch (fileNotFound e) {
 			System.out.println("Sorry, the folder doesn't exist");
@@ -412,7 +428,6 @@ public class Core {
 					cio.removeFileAtAddress(((vfsCore.File) subpath).getAddress());
 				}
 				//In all cases, we remove the element from the children list
-				//Potential error, see with the tests
 				//maybe only in the case of a file
 				folder.removeChild(subpath);
 			}
