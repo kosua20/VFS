@@ -23,8 +23,8 @@ public class SearchVisitor implements Visitor {
 	@Override
 	public void visit(Folder folder) {
 		//If the folder has chilren, and as we are only looking for files, we need to go deeper in the hierarchy
-		if (folder.getChildrens()!=null){
-			for(Hierarchy child:folder.getChildrens()){
+		if (folder.getChildren()!=null){
+			for(Hierarchy child:folder.getChildren()){
 				child.accept(this);
 			}
 		}

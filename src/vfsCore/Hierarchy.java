@@ -24,19 +24,6 @@ public class Hierarchy implements Serializable, Visitable {
 	 */
 	private Folder parent; 
 	
-	/**
-	 * constructor hierarchy using fields 
-	 * @param childrens
-	 * @param name
-	 */
-	
-	/*public Hierarchy(String name, Folder parent) {
-		super();
-		
-		
-		this.name = name;
-		this.parent=parent;
-	}*/
 
 	/**
 	 * @param name

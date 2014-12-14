@@ -349,7 +349,7 @@ public class CoreIO {
 	
 	/**
 	* Returns the size of a folder, recursively browsing its sub-folders and files, on the host file system
-	* @param folder the folder we want to know the size of
+	* @param folder the folder we want to know the size of, as a java.io.File element
 	* @return the size of the folder
 	*/
 	public long sizeOfFolder(File folder){

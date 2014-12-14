@@ -69,7 +69,7 @@ public class Folder extends Hierarchy{
 		/**
 		 * @return the children
 		 */
-		public ArrayList<Hierarchy> getchildren() {
+		public ArrayList<Hierarchy> getChildren() {
 			return children;
 		}
 
@@ -102,7 +102,7 @@ public class Folder extends Hierarchy{
 			loopOverToken : while(st.hasMoreTokens()){
 				if(h1 instanceof Folder){
 					String currentItem = st.nextToken();
-					for(Hierarchy child : ((Folder)h1).getchildren())
+					for(Hierarchy child : ((Folder)h1).getChildren())
 					{	
 						if(currentItem.equalsIgnoreCase(child.getName())){
 							h1=child;

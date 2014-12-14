@@ -1,6 +1,5 @@
 package vfsCore.visitors;
 
-import vfsCore.File;
 import vfsCore.Folder;
 import vfsCore.Hierarchy;
 
@@ -13,11 +12,11 @@ public class SizeVisitor implements Visitor{
 	
 	public void visit(Folder folder) {
 		//For a folder, its size is zero
-		if (folder.getChildrens()==null){
+		if (folder.getChildren()==null){
 			sizeUsed = sizeUsed+0;
 		} else {
 			//and we add the size of its children using the same SizeVisitor
-			for(Hierarchy child:folder.getChildrens()){
+			for(Hierarchy child:folder.getChildren()){
 				child.accept(this);
 			}
 		}
