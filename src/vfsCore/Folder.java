@@ -19,22 +19,22 @@ public class Folder extends Hierarchy{
 	/**
 	 * arraylist of children of a folder element
 	 */
-	private ArrayList<Hierarchy> childrens = new ArrayList<Hierarchy>();
+	private ArrayList<Hierarchy> children = new ArrayList<Hierarchy>();
 	/**
 	 * constructor
-	 * @param childrens
+	 * @param children
 	 * @param name
 	 * @param parent
 	 */
-	public Folder(ArrayList<Hierarchy> childrens, String name, Folder parent) {
+	public Folder(ArrayList<Hierarchy> children, String name, Folder parent) {
 		super(name, parent);
-		if (childrens != null){
-			for(Hierarchy child:childrens){
+		if (children != null){
+			for(Hierarchy child:children){
 				child.setParent(this);
 			}
-			this.childrens = childrens;
+			this.children = children;
 		} else {
-			this.childrens = new ArrayList<Hierarchy>();
+			this.children = new ArrayList<Hierarchy>();
 		}
 	}
 	
@@ -47,11 +47,11 @@ public class Folder extends Hierarchy{
 		 * @param newChild
 		 */
 		public void addChild(Hierarchy newChild){
-			if (this.childrens == null){
-				this.childrens = new ArrayList<Hierarchy>();
+			if (this.children == null){
+				this.children = new ArrayList<Hierarchy>();
 			}
 			newChild.setParent(this);
-			this.childrens.add(newChild);
+			this.children.add(newChild);
 		}
 
 		/**
@@ -62,28 +62,28 @@ public class Folder extends Hierarchy{
 		 * @param child
 		 */
 		public void removeChild(Hierarchy child){
-			this.childrens.remove(child);
+			this.children.remove(child);
 			//updateSize();
 		}
 		
 		/**
 		 * @return the children
 		 */
-		public ArrayList<Hierarchy> getChildrens() {
-			return childrens;
+		public ArrayList<Hierarchy> getchildren() {
+			return children;
 		}
 
 		/**
-		 * @param childrens the children to set
+		 * @param children the children to set
 		 */
-		public void setChildrens(ArrayList<Hierarchy> childrens) {
-			if (childrens != null){
-				for(Hierarchy child:childrens){
+		public void setchildren(ArrayList<Hierarchy> children) {
+			if (children != null){
+				for(Hierarchy child:children){
 					child.setParent(this);
 				}
-				this.childrens = childrens;
+				this.children = children;
 			} else {
-				this.childrens = new ArrayList<Hierarchy>();
+				this.children = new ArrayList<Hierarchy>();
 			}
 			
 		}
@@ -102,7 +102,7 @@ public class Folder extends Hierarchy{
 			loopOverToken : while(st.hasMoreTokens()){
 				if(h1 instanceof Folder){
 					String currentItem = st.nextToken();
-					for(Hierarchy child : ((Folder)h1).getChildrens())
+					for(Hierarchy child : ((Folder)h1).getchildren())
 					{	
 						if(currentItem.equalsIgnoreCase(child.getName())){
 							h1=child;
@@ -121,8 +121,8 @@ public class Folder extends Hierarchy{
 		 * @throws AlreadyExistException
 		 */
 		public void alreadyExist(String name) throws AlreadyExistException{
-			if (this.childrens == null){return;}
-			for(Hierarchy element : this.childrens){
+			if (this.children == null){return;}
+			for(Hierarchy element : this.children){
 				if(element.name.equalsIgnoreCase(name)){
 					throw new AlreadyExistException("Attention un fichier ou dossier du meme nom existe deja !");
 				}			
@@ -136,8 +136,8 @@ public class Folder extends Hierarchy{
 		 * @return true if potentialChild is in the subfolders of the Hierarchy element
 		 */
 		public boolean hasAsChild(Hierarchy potentialChild){
-			if (this.childrens == null){return false;}
-			for(Hierarchy element : this.childrens){
+			if (this.children == null){return false;}
+			for(Hierarchy element : this.children){
 				if (element.equals(potentialChild)){
 					return true;
 				} else if (element instanceof Folder){

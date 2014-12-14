@@ -92,7 +92,7 @@ public class CoreImportExport {
 		folder1.mkdir();
 		boolean success = true;
 		//Importing sub-directories and files
-		for(Hierarchy file1:folder.getChildrens()){
+		for(Hierarchy file1:folder.getchildren()){
 			if (file1 instanceof vfsCore.File){
 				//Exporting the file to the correct sub-directory
 				success = success && (exportFile((vfsCore.File)file1, destination+File.separator+file1.getName()));

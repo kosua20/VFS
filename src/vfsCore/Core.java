@@ -176,7 +176,7 @@ public class Core {
 	 */
 	public void list(){
 			String s = "Current: "+currentHierarchy.getName()+"\n";
-			for(Hierarchy child:currentHierarchy.getChildrens()){
+			for(Hierarchy child:currentHierarchy.getchildren()){
 				s = s+"- "+child.getName()+" ";
 				if (child instanceof vfsCore.File){
 					s = s +" f "+((vfsCore.File)child).getSize()+"B";
@@ -419,7 +419,7 @@ public class Core {
 	public void deleteFolderOfHierarchy(Hierarchy folder) throws BadPathInstanceException, FileNotFoundException, IOException{
 		if (folder instanceof Folder){
 			//deleting the sub-folders and subfiles
-			for(Hierarchy subpath : ((Folder)folder).getChildrens())
+			for(Hierarchy subpath : ((Folder)folder).getchildren())
 			{		
 				if(subpath instanceof Folder){
 					deleteFolderOfHierarchy(subpath);
@@ -548,7 +548,7 @@ public class Core {
 				//Then we create the new folder, empty
 				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),original1.getName(),destinationFolder);
 				//And we add its children
-				for(Hierarchy child:original1.getChildrens()){
+				for(Hierarchy child:original1.getchildren()){
 					copyElement(child, copyFolder);
 				}
 				//Finally we add the newly constructed hierarchy to the destination folder
