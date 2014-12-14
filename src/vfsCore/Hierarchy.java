@@ -5,7 +5,7 @@ import java.io.Serializable;
 import vfsCore.visitors.Visitable;
 import vfsCore.visitors.Visitor;
 
-public class Hierarchy implements Serializable, Visitable {
+public abstract class Hierarchy implements Serializable, Visitable {
 	
 	//-----------------------------------------//
 	//ATTRIBUTES, CONSTRUCTORS, GETTERS/SETTERS//
