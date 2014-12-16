@@ -199,7 +199,7 @@ public class Core {
 	 * lists the elements stored in the current folder, giving the name of each element, its type (file (f) or Folder (F)), and the size of the files in bytes
 	 */
 	public void list(){
-			String s = "Current: "+currentHierarchy.getName()+"\n";
+			String s = "Current: "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
 			for(Hierarchy child:currentHierarchy.getChildren()){
 				s = s+"- "+child.getName()+" ";
 				if (child instanceof vfsCore.File){
