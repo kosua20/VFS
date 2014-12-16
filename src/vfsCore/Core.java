@@ -33,6 +33,13 @@ public class Core {
 	private CoreImportExport cie;
 	private boolean isCompressionEnabled = true;
 	
+	public String getDiskpath(){
+		if (cio != null){
+			return cio.getDiskName();
+		} else {
+			return "";
+		}
+	}
 	
 	//----------------------//
 	//MANAGING THE VFS DISKS//
@@ -107,8 +114,13 @@ public class Core {
 	public boolean deleteDisk(String filePath) {
 		try {
 			File disk = new File(filePath);
+			if (disk.exists()){
 			disk.delete();
 			return true;
+			} else {
+				System.out.println("The file doesn't exist.");
+				return false;
+			}
 		} catch (Exception e){
 			System.out.println("Error with the file");
 			return false;
