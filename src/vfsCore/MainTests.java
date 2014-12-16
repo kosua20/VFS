@@ -10,9 +10,7 @@ public class MainTests {
 		c.openDisk("test.dsk");
 		
 		c.importElement("test/ressources/test2","truc2");
-		
-		
-		
+	
 		System.out.println(c.getUsedSpace());
 		System.out.println(c.getTotalSpace());
 		System.out.println(c.getFreeSpace());
