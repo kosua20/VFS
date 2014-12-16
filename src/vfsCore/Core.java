@@ -31,7 +31,7 @@ public class Core {
 	 */
 	private CoreIO cio;
 	private CoreImportExport cie;
-	
+	private boolean isCompressionEnabled = true;
 	
 	
 	//----------------------//
@@ -311,7 +311,7 @@ public class Core {
 		File fileToAdd = new File(homePath);
 		//Lazily initializing the Import-Export Core
 		if (cie == null){
-			cie = new CoreImportExport(cio);
+			cie = new CoreImportExport(cio, isCompressionEnabled);
 		}
 		//Check if the file exists on the host
 		if (fileToAdd.exists()){
@@ -375,7 +375,7 @@ public class Core {
 		try {
 			//Lazily initializing the Import-Export Core
 			if (cie == null){
-				cie = new CoreImportExport(cio);
+				cie = new CoreImportExport(cio,isCompressionEnabled);
 			}
 			//We find the pointer to the Hierarchy element at the given VFSPath
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);

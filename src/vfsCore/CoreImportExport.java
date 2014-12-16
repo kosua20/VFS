@@ -15,6 +15,7 @@ public class CoreImportExport {
 	 * the CoreIO instance associated with this CoreImportExport
 	 */
 	private CoreIO cio;
+	private boolean isCompressionEnabled = false;
 	/**
 	 * Constructor, using a CoreIO parameter
 	 * @param cio
@@ -22,6 +23,12 @@ public class CoreImportExport {
 	public CoreImportExport(CoreIO cio) {
 		super();
 		this.cio = cio;
+	}
+	
+	public CoreImportExport(CoreIO cio, boolean compression) {
+		super();
+		this.cio = cio;
+		this.isCompressionEnabled = compression;
 	}
 	
 
@@ -38,10 +45,18 @@ public class CoreImportExport {
 	 * @throws FileNotFoundException
 	 */
 	public vfsCore.File importFile(File fileToAdd, String name) throws IOException, FileNotFoundException{
+		File toImport;
+		if (!isCompressionEnabled){
+			//Without compression
+			toImport = fileToAdd;
+		} else {
+			//With compression
+			toImport = ZipUtility.compress(fileToAdd);
+		}
 		//We write it to the VFS disk
-		long address = cio.writeToDisk(fileToAdd);
+		long address = cio.writeToDisk(toImport);
 		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
-		vfsCore.File hFile = new vfsCore.File(name, address, fileToAdd.length(),null);
+		vfsCore.File hFile = new vfsCore.File(name, address, toImport.length(),null);
 		return hFile;
 	}
 	
@@ -79,15 +94,23 @@ public class CoreImportExport {
 	 */
 	public boolean exportFile(vfsCore.File file, String destination){
 		try {
-			//System.out.println("Exporting file" + file.getName());
-			//We call readFromAdress, with the size of the file
-			cio.readFromAdress(file.getAddress(), destination, file.getSize());
+			if(!isCompressionEnabled){
+				//We call readFromAdress, with the size of the file
+				cio.readFromAdress(file.getAddress(), destination, file.getSize());
+			} else {
+				//With compression
+				File temp = File.createTempFile(file.getName(), ".zip");
+				//We call readFromAdress, with the size of the file
+				cio.readFromAdress(file.getAddress(), temp.getAbsolutePath(), file.getSize());
+				ZipUtility.expand(temp, destination);
+			}
 			return true;
 		} catch (FileNotFoundException e) {
 			System.out.println("Fichier non trouvé");
 			return false;
 		} catch (Exception e) {
 			System.out.println("Error with the CoreIO");
+			e.printStackTrace();
 			return false;
 		}
 	}

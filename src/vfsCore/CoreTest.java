@@ -239,12 +239,13 @@ public class CoreTest {
 	@Test
 	public void testFreeSpace(){
 		createDiskWithData();
-		assertEquals(8000*1024-885568,testCore.getFreeSpace());
+		assertEquals(8000*1024-887237,testCore.getFreeSpace());
 	}
 	@Test
 	public void testUsedSpace(){
 		createDiskWithData();
-		assertEquals(885568,testCore.getUsedSpace());
+		assertEquals(887237,testCore.getUsedSpace());
+		System.out.println("Used size : "+testCore.getUsedSpace());
 	}
 	@Test
 	public void testTotalSize(){
