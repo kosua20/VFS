@@ -57,6 +57,11 @@ public class CoreImportExport {
 		long address = cio.writeToDisk(toImport);
 		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
 		vfsCore.File hFile = new vfsCore.File(name, address, toImport.length(),null);
+		
+		if (isCompressionEnabled){
+			//We delete the temp file
+			toImport.delete();
+		}
 		return hFile;
 	}
 	
@@ -103,6 +108,7 @@ public class CoreImportExport {
 				//We call readFromAdress, with the size of the file
 				cio.readFromAdress(file.getAddress(), temp.getAbsolutePath(), file.getSize());
 				ZipUtility.expand(temp, destination);
+				temp.delete();
 			}
 			return true;
 		} catch (FileNotFoundException e) {
