@@ -13,7 +13,7 @@ public class vfsCommandLine {
 	public void mainLoop(){
 		String input;
 		Scanner reader = new Scanner(System.in);
-		System.out.println("Welcome in the VFS disk command-line manager. If you need help, just type 'help'.");
+		System.out.println("Welcome in the VFS disk command-line manager. Escape spaces in paths using a \\ prefix. If you need help, just type 'help'");
 		clLoop:while(true){
 			
 			//User input
@@ -23,9 +23,12 @@ public class vfsCommandLine {
 			//We are immediately treating the EXIT COMMAND
 			if(input.equalsIgnoreCase("exit")){	break clLoop; }
 			
-			//Else, string treatment
-			String[] arguments = input.split(" ");
-			
+			//Else, string treatment, we split using a regex to avoid splitting escaped spaces in paths
+			String[] arguments = input.split("(?<!\\\\)\\s");
+			//We then restore each argument, replacing the escaped characters by their originals
+			for(int i = 1;i<arguments.length;i++){
+				arguments[i] = arguments[i].replaceAll("\\\\\\s", " ");
+			}
 			//Checking the validity before using the result of the split
 			if (arguments.length == 0){ continue clLoop;}
 			

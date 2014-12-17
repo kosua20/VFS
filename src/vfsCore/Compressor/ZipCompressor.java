@@ -1,4 +1,4 @@
-package vfsCore;
+package vfsCore.Compressor;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,9 +8,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class ZipUtility {
+public class ZipCompressor implements Compressor {
 	
-	public static File compress(File original) throws IOException{
+	public File compress(File original) throws IOException{
 		byte[] buff = new byte[1024];
 		
 		FileOutputStream fOS = null;
@@ -28,8 +28,7 @@ public class ZipUtility {
 			ZipEntry entry = new ZipEntry(original.getName());
 			
 			zOS.putNextEntry(entry);
-			
-			
+
 			int used;
 			while ((used = fIS.read(buff)) > 0) {
 				zOS.write(buff,0,used);
@@ -40,12 +39,11 @@ public class ZipUtility {
 		} finally {
 			zOS.close();
 			fOS.close();
-			
 			fIS.close();
 		}
 	}
 	
-	public static File expand(File compressed, String destination) throws IOException {
+	public File expand(File compressed, String destination) throws IOException {
 		byte[] buff = new byte[1024];
 		
 		FileOutputStream fOS = null;

@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import vfsCore.Compressor.Compressor;
+import vfsCore.Compressor.ZipCompressor;
+
 /**
  * The CoreImportExport is an intermediate class between the generality of the Core class and the specificity of the CoreIO class.
  * It provides a bridge between those two classes, specialized in the import and export of files and folders. 
@@ -15,7 +19,11 @@ public class CoreImportExport {
 	 * the CoreIO instance associated with this CoreImportExport
 	 */
 	private CoreIO cio;
-	private boolean isCompressionEnabled = false;
+	/**
+	 * attributes for the compression. Compressor is an interface.
+	 */
+	private boolean isCompressionEnabled = true;
+	private Compressor compressor;
 	/**
 	 * Constructor, using a CoreIO parameter
 	 * @param cio
@@ -23,12 +31,18 @@ public class CoreImportExport {
 	public CoreImportExport(CoreIO cio) {
 		super();
 		this.cio = cio;
+		/*By default, we are enabling a Zip compressor using the java.util.zip utilities
+		But any compression process conforming to the Compressor class can be used*/
+		this.compressor = new ZipCompressor();
 	}
 	
 	public CoreImportExport(CoreIO cio, boolean compression) {
 		super();
 		this.cio = cio;
 		this.isCompressionEnabled = compression;
+		if (compression){
+			this.compressor = new ZipCompressor();
+		}
 	}
 	
 
@@ -51,7 +65,7 @@ public class CoreImportExport {
 			toImport = fileToAdd;
 		} else {
 			//With compression
-			toImport = ZipUtility.compress(fileToAdd);
+			toImport = compressor.compress(fileToAdd);
 		}
 		//We write it to the VFS disk
 		long address = cio.writeToDisk(toImport);
@@ -108,7 +122,7 @@ public class CoreImportExport {
 				File temp = File.createTempFile(file.getName(), ".zip");
 				//We call readFromAdress, with the size of the file
 				cio.readFromAdress(file.getAddress(), temp.getAbsolutePath(), file.getSize());
-				ZipUtility.expand(temp, destination);
+				compressor.expand(temp, destination);
 				temp.delete();
 			}
 			return true;
