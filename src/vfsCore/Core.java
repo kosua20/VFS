@@ -335,13 +335,18 @@ public class Core {
 		//Check if the file exists on the host
 		if (fileToAdd.exists()){
 			try {
+				//First we split the destination path to extract the parent folder and the new name of the element
+				String path = VFSPath.substring(0, VFSPath.lastIndexOf(File.separator));
+				String newName = VFSPath.substring(VFSPath.lastIndexOf(File.separator)+1);
 				//We find the destination folder
-				Hierarchy destination = fullHierarchy.findChild(VFSPath);
+				Hierarchy destination = fullHierarchy.findChild(path);
 				if (destination instanceof vfsCore.File){
 					System.out.println("Please specify a *folder* as destination");
 					return false;
 				}
 				//Now we are sure the destination is a folder
+				//We check if the destination folder doesn't already contain an element with the same name
+				((Folder)destination).alreadyExist(newName);
 				if (fileToAdd.isFile()){
 					//It's a file
 					//Checking its size against the available space on the vfs disk
@@ -351,8 +356,8 @@ public class Core {
 					}
 					try {
 						//We import it
-						vfsCore.File hFile = cie.importFile(fileToAdd, fileToAdd.getName());
-						//For now, we add it to the root
+						vfsCore.File hFile = cie.importFile(fileToAdd, newName);
+						//We add it to its designated parent in the path argument
 						((Folder)destination).addChild(hFile);
 						//And we save the modified Hierarchy
 						return saveFullHierarchyToFile();
@@ -372,8 +377,8 @@ public class Core {
 					}
 					try {
 						//We import it
-						vfsCore.Folder hFolder = cie.importFolder(fileToAdd, fileToAdd.getName());
-						//For now, we add them to the root
+						vfsCore.Folder hFolder = cie.importFolder(fileToAdd, newName);
+						//We add it to its designated parent in the path argument
 						((Folder)destination).addChild(hFolder);
 						//And we save the modified Hierarchy
 						return saveFullHierarchyToFile();
@@ -387,6 +392,9 @@ public class Core {
 				}
 			} catch (fileNotFound e1) {
 				System.out.println("The folder doesn't exist");
+				return false;
+			} catch (AlreadyExistException e1) {
+				System.out.println("An element with this name already exists on the VFS.");
 				return false;
 			}
 		} else {
@@ -410,9 +418,9 @@ public class Core {
 			//We find the pointer to the Hierarchy element at the given VFSPath
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
-				return cie.exportFile((vfsCore.File)origin, homePath+File.separator+origin.getName());
+				return cie.exportFile((vfsCore.File)origin, homePath);
 			} else {
-				return cie.exportFolder((Folder)origin, homePath+File.separator+origin.getName());
+				return cie.exportFolder((Folder)origin, homePath);
 			}
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
@@ -428,15 +436,19 @@ public class Core {
 	//-----------------//
 	
 	/**
-	 * method to delete a folder and all its content at a specified path
+	 * method to delete an element and all its content at a specified path
 	 * @param path
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 */
-	public boolean deleteFolderAtPath(String path){
+	public boolean deleteElementAtPath(String path){
 		try {
 			Hierarchy child = fullHierarchy.findChild(path);
-			deleteFolderOfHierarchy(child);
+			if (child instanceof Folder){
+				deleteFolderOfHierarchy(child);
+			} else if (child instanceof vfsCore.File){
+				deleteFileAtPath(path);
+			}
 			return saveFullHierarchyToFile();
 		} catch (BadPathInstanceException e) {
 			System.out.println("Attention vous devez selectionner un DOSSIER a supprimer");
@@ -448,7 +460,6 @@ public class Core {
 			System.out.println("CoreIO exception");
 			return false;
 		}
-		
 	}
 	
 	/**
@@ -470,7 +481,7 @@ public class Core {
 					cio.removeFileAtAddress(((vfsCore.File) subpath).getAddress());
 				}
 				//In all cases, we remove the element from the children list
-				//maybe only in the case of a file
+				//?maybe only in the case of a file?
 				((Folder)folder).removeChild(subpath);
 			}
 			//deleting the folder itself
@@ -482,7 +493,7 @@ public class Core {
 	
 	/**
 	 * delete a file at a path on the VFS disk
-	 * @param path the path to the file in the vfs core (absolute path)
+	 * @param path the absolute path to the file to delete
 	 * @throws BadPathInstanceException 
 	 * @throws fileNotFound 
 	 */
@@ -518,17 +529,19 @@ public class Core {
 	/**
 	 * copy an element (given by an absolute path) to another folder on the vfs (absolute path too)
 	 * @param departure absolute path to the element to copy
-	 * @param destination absolute path to the destination folder of the copy
+	 * @param destination absolute path to the copy (including its name)
 	 * @return true if the operation is successful
 	 */
 	public boolean copyElementAtPath(String departure, String destination){
 		try {
 			Hierarchy toBeCopied = fullHierarchy.findChild(departure);
-			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			String path = destination.substring(0, destination.lastIndexOf(File.separator));
+			String newName = destination.substring(destination.lastIndexOf(File.separator)+1);
+			Hierarchy finalStop = fullHierarchy.findChild(path);
 			
 			if(finalStop instanceof Folder){
-				((Folder)finalStop).alreadyExist(toBeCopied.getName());
-				return copyElement(toBeCopied, (Folder)finalStop);
+				((Folder)finalStop).alreadyExist(newName);
+				return copyElement(toBeCopied, (Folder)finalStop, newName);
 			} else {
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
 			}
@@ -548,9 +561,10 @@ public class Core {
 	 * copy a Hierarchy element to another Hierarchy element
 	 * @param original the Hierarchy to copy
 	 * @param destinationFolder the Hierarchy where we should copy
+	 * @param name the new name of the element
 	 * @return true if the operation is successful
 	 */
-	public boolean copyElement(Hierarchy original, Folder destinationFolder){
+	public boolean copyElement(Hierarchy original, Folder destinationFolder, String name){
 		//Thank to the check in copyElementAtPath, we are sure destinationFolder is a Folder
 			if (original instanceof vfsCore.File){
 				//we want to copy a single file
@@ -562,7 +576,7 @@ public class Core {
 				long newAdress = -1;
 				try {
 					//We pass the copy order to the CoreIO
-					destinationFolder.alreadyExist(original.getName());
+					destinationFolder.alreadyExist(name);
 					newAdress = cio.copyFileAtAddress(((vfsCore.File) original).getAddress());
 				} catch (FileNotFoundException e){
 					System.out.println("The file doesn't exist");
@@ -575,10 +589,11 @@ public class Core {
 					return false;
 				}
 				//We add the element to the Hierarchy
-				destinationFolder.addChild(new vfsCore.File(original.getName(), newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
+				destinationFolder.addChild(new vfsCore.File(name, newAdress, ((vfsCore.File) original).getSize(), destinationFolder));
 				return saveFullHierarchyToFile();
 			} else {
 				//We want to copy a folder
+				//The availability of the name in the parent folder has already been tested in copyElementAtPath
 				Folder original1 = ((Folder)original);
 				//First we check the available size
 				SizeVisitor sz = new SizeVisitor();
@@ -588,10 +603,10 @@ public class Core {
 					return false;
 				}
 				//Then we create the new folder, empty
-				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),original1.getName(),destinationFolder);
+				Folder copyFolder = new Folder(new ArrayList<Hierarchy>(),name,destinationFolder);
 				//And we add its children
 				for(Hierarchy child:original1.getChildren()){
-					copyElement(child, copyFolder);
+					copyElement(child, copyFolder, child.getName());
 				}
 				//Finally we add the newly constructed hierarchy to the destination folder
 				destinationFolder.addChild(copyFolder);
@@ -603,7 +618,7 @@ public class Core {
 	/**
 	 * move an element originally at departure to the folder designated by destination
 	 * @param departure the element to move
-	 * @param destination the folder were the element should be moved
+	 * @param destination the path to the moved element, including its name (allows for renaming)
 	 * @throws fileNotFound
 	 * @throws BadPathInstanceException
 	 */
@@ -611,10 +626,12 @@ public class Core {
 		Hierarchy toBeMoved;
 		try {
 			toBeMoved = fullHierarchy.findChild(departure);
-			Hierarchy finalStop = fullHierarchy.findChild(destination);
+			String path = destination.substring(0, destination.lastIndexOf(File.separator));
+			String newName = destination.substring(destination.lastIndexOf(File.separator)+1);
+			Hierarchy finalStop = fullHierarchy.findChild(path);
 			
 			if(finalStop instanceof Folder){
-				((Folder)finalStop).alreadyExist(toBeMoved.getName());
+				((Folder)finalStop).alreadyExist(newName);
 				//If we move a folder, we first have to check that we are not trying to move it in one of its own subfolders
 				if (toBeMoved instanceof Folder && ((Folder)toBeMoved).hasAsChild(finalStop)){
 					System.out.println("Trying to move a folder in one of its subfolders");
@@ -623,6 +640,7 @@ public class Core {
 				//Then we can execute the move
 				toBeMoved.getParent().removeChild(toBeMoved);
 				((Folder)finalStop).addChild(toBeMoved);
+				toBeMoved.setName(newName);
 				return saveFullHierarchyToFile();
 			}else{
 				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
@@ -693,6 +711,10 @@ public class Core {
 		return sv.getElements();
 	}
 	
+	/**
+	 * prints the list of files found using the searchFile method, with their size and path
+	 * @param search the string to search, including extension
+	 */
 	public void printSearch(String search){
 		ArrayList<Hierarchy> results = searchFile(search);
 		if (results.isEmpty()){
@@ -700,9 +722,17 @@ public class Core {
 		} else {
 			System.out.println(results.size() + " file(s) found :");
 			for (Hierarchy file:results){
-				System.out.println("- "+file.getName()+" of size "+((vfsCore.File)file).getSize()+"B in folder "+file.getParent().getName());
+				System.out.println("- "+file.getName()+" of size "+((vfsCore.File)file).getSize()+"B at path "+getPath(file));
 			}
 		}
-		
+	}
+	
+	public String getPath(Hierarchy origin){
+		String s = File.separator + origin.getName();
+		Hierarchy current = origin;
+		while((current = current.getParent())!=null){
+			s = File.separator + current.getName() + s;
+		}
+		return s.replaceFirst(File.separator, "");
 	}
 }

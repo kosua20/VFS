@@ -70,7 +70,6 @@ public class Folder extends Hierarchy{
 		 */
 		public void removeChild(Hierarchy child){
 			this.children.remove(child);
-			//updateSize();
 		}
 		
 		/**
@@ -83,7 +82,7 @@ public class Folder extends Hierarchy{
 		/**
 		 * @param children the children to set
 		 */
-		public void setchildren(ArrayList<Hierarchy> children) {
+		public void setChildren(ArrayList<Hierarchy> children) {
 			if (children != null){
 				for(Hierarchy child:children){
 					child.setParent(this);

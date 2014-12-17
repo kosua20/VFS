@@ -140,7 +140,6 @@ public class vfsCommandLine {
 	}
 	
 	private void find(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
 		
 	}
 

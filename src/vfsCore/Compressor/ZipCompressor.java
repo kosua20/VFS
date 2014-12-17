@@ -71,9 +71,9 @@ public class ZipCompressor implements Compressor {
 			}
 		} finally {
 			if (entry != null){zIS.closeEntry();}
-			zIS.close();
-			fOS.close();
-			fIS.close();
+			if (zIS != null){zIS.close();}
+			if (zIS != null){fOS.close();}
+			if (zIS != null){fIS.close();}
 		}
 	}
 }

@@ -29,8 +29,8 @@ public class CoreTest {
 	
 	public void createDiskWithData(){
 		resetDisk();
-		testCore.importElement("test/ressources/test1.txt","file1.txt");
-		testCore.importElement("test/ressources/test2","folder2");
+		testCore.importElement("test/ressources/test1.txt","/file1.txt");
+		testCore.importElement("test/ressources/test2","/folder2");
 		
 	}
 	
@@ -85,13 +85,13 @@ public class CoreTest {
 		testCore.createFileAtPath("/folder3/subfolder4","th.txt");
 		System.out.println("Test delete");
 		testCore.list();
-		assertTrue(testCore.deleteFolderAtPath("/folder2"));
+		assertTrue(testCore.deleteElementAtPath("/folder2"));
 		testCore.list();
-		assertTrue(testCore.deleteFolderAtPath("/folder3/subfolder4"));
+		assertTrue(testCore.deleteElementAtPath("/folder3/subfolder4"));
 		testCore.goTo("/folder3");
 		testCore.list();
 		testCore.goToParent();
-		assertFalse(testCore.deleteFolderAtPath("/folder167777"));
+		assertFalse(testCore.deleteElementAtPath("/folder167777"));
 		System.out.println("End of test");
 	}
 	@Test
@@ -163,26 +163,26 @@ public class CoreTest {
 		createArborescence();
 		System.out.println("Test move element");
 		testCore.list();
-		assertTrue(testCore.moveElement("/file1.txt","/folder1"));
+		assertTrue(testCore.moveElement("/file1.txt","/folder1/file1.txt"));
 		testCore.list();
 		testCore.goTo("/folder1");
 		testCore.list();
 		testCore.goToParent();
 		testCore.list();
-		assertTrue(testCore.moveElement("/folder1","/folder2/subfolder2"));
+		assertTrue(testCore.moveElement("/folder1","/folder2/subfolder2/folder1"));
 		testCore.list();
 		testCore.goTo("/folder2/subfolder2");
 		testCore.list();
 		testCore.goTo("folder1");
 		testCore.list();
-		assertFalse(testCore.moveElement("/folder2","/folder1/folder3"));
+		assertFalse(testCore.moveElement("/folder2","/folder1/folder3/folder3"));
 		System.out.println("End of test");
 	}
 	
 	@Test
 	public void preventMoveOfFolderInItself(){
 		createDiskWithData();
-		assertFalse(testCore.moveElement("/folder2", "/folder2/sub1"));
+		assertFalse(testCore.moveElement("/folder2", "/folder2/sub1/folder2"));
 	}
 	
 	@Test
@@ -190,15 +190,15 @@ public class CoreTest {
 		createDiskWithData();
 		System.out.println("Test copy element");
 		testCore.list();
-		//tetsing for a file
-		assertTrue(testCore.copyElementAtPath("/file1.txt","/folder2"));
+		//testing for a file
+		assertTrue(testCore.copyElementAtPath("/file1.txt","/folder2/file1.txt"));
 		testCore.list();
 		testCore.goTo("/folder2");
 		testCore.list();
 		testCore.goToParent();
 		testCore.createFolderAtPath("/","folder3");
 		//testing for a folder
-		assertTrue(testCore.copyElementAtPath("/folder2","/folder3"));
+		assertTrue(testCore.copyElementAtPath("/folder2","/folder3/folder2"));
 		testCore.goTo("/folder3/folder2");
 		testCore.list();
 		//Checking that deleting the original element doesn't delete the data of the copy
@@ -216,9 +216,9 @@ public class CoreTest {
 	@Test
 	public void testImportElement(){
 		resetDisk();
-		assertTrue(testCore.importElement("test/ressources/test1.txt","file1.txt"));
-		assertTrue(testCore.importElement("test/ressources/test2","folder2"));
 		System.out.println("Test import");
+		assertTrue(testCore.importElement("test/ressources/test1.txt","/file1.txt"));
+		assertTrue(testCore.importElement("test/ressources/test2","/folder2"));
 		testCore.list();
 		testCore.goTo("folder2");
 		testCore.list();
@@ -239,12 +239,12 @@ public class CoreTest {
 	@Test
 	public void testFreeSpace(){
 		createDiskWithData();
-		assertEquals(8000*1024-887237,testCore.getFreeSpace());
+		assertEquals(8000*1024-739467,testCore.getFreeSpace());
 	}
 	@Test
 	public void testUsedSpace(){
 		createDiskWithData();
-		assertEquals(887237,testCore.getUsedSpace());
+		assertEquals(739467,testCore.getUsedSpace());
 		System.out.println("Used size : "+testCore.getUsedSpace());
 	}
 	@Test

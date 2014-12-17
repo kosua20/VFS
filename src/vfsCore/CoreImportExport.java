@@ -71,7 +71,6 @@ public class CoreImportExport {
 		long address = cio.writeToDisk(toImport);
 		//We create a new File (subclass of Hierarchy) element ((we have not interest to the parent element in the case of a file)
 		vfsCore.File hFile = new vfsCore.File(name, address, toImport.length(),null);
-		
 		if (isCompressionEnabled){
 			//We delete the temp file
 			toImport.delete();
@@ -128,6 +127,7 @@ public class CoreImportExport {
 			return true;
 		} catch (FileNotFoundException e) {
 			System.out.println("Fichier non trouvé");
+			e.printStackTrace();
 			return false;
 		} catch (Exception e) {
 			System.out.println("Error with the CoreIO");
