@@ -8,7 +8,7 @@ public class MainTests {
 		c.deleteDisk("test.dsk");
 		c.createDisk("test.dsk", 8000);
 		c.openDisk("test.dsk");
-		
+		/*
 		c.importElement("test/ressources/test2","truc2");
 	
 		System.out.println(c.getUsedSpace());
@@ -20,7 +20,9 @@ public class MainTests {
 		c.goToParent();
 		c.list();
 		c.goToParent();
-		c.list();
+		c.list();*/
+		c.importElement("test/ressources/test1.txt","file1.txt");
+		c.importElement("test/ressources/test2","folder2");
 		
 	}
 

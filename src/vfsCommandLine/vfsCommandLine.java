@@ -88,9 +88,27 @@ public class vfsCommandLine {
 		System.exit(0);
 	}
 	
-	private void ls(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
-		
+	private void ls(String[] args) throws SyntaxException, CoreNotInitalisedException{
+		if (core == null){ throw new CoreNotInitalisedException();}
+		switch (args.length) {
+		case 1:
+			core.list(false);
+			break;
+		case 2:
+			if (args[1].equalsIgnoreCase("-l")){
+				core.list(true);
+			} else {
+				core.goTo(args[1]);
+				core.list(false);
+			}
+			break;
+		case 3:
+			core.goTo(args[2]);
+			core.list(true);
+			break;
+		default:
+			throw new SyntaxException();
+		}
 	}
 
 	private void cd(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
@@ -162,11 +180,15 @@ public class vfsCommandLine {
 
 	private void impvfs(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		
 		
 	}
 	
 	private void expvfs(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		
 		
 	}
 	

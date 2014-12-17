@@ -13,7 +13,13 @@ public class SizeVisitor implements Visitor{
 	private long sizeUsed = 0;
 	
 	@Override
-	public void visit(Hierarchy object){}
+	public void visit(Hierarchy object){
+		if (object instanceof Folder){
+			visit((Folder)object);
+		} else if (object instanceof vfsCore.File){
+			visit((vfsCore.File)object);
+		}
+	}
 	
 	@Override
 	public void visit(Folder folder) {

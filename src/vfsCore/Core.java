@@ -198,21 +198,30 @@ public class Core {
 	/**
 	 * lists the elements stored in the current folder, giving the name of each element, its type (file (f) or Folder (F)), and the size of the files in bytes
 	 */
-	public void list(){
+	public void list(boolean showSizes){
 			String s = "Current: "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
 			for(Hierarchy child:currentHierarchy.getChildren()){
 				s = s+"- "+child.getName()+" ";
+				String size = " ";
+				if (showSizes){
+					SizeVisitor sv = new SizeVisitor();
+					sv.visit(child);
+					System.out.println(sv.getSizeUsed());
+					size = size + sv.getSizeUsed()+"B";
+				}
 				if (child instanceof vfsCore.File){
-					s = s +" f "+((vfsCore.File)child).getSize()+"B";
+					s = s +"\t f"+size;
 				}else {
-					s = s + " F";
+					s = s + "\t d"+size;
 				}
 				s = s+"\n";
 			}
 			System.out.println(s);
 		}
 	
-		
+	public void list(){
+		list(true);
+	}
 		
 	//------------------------------//
 	//CREATING AND RENAMING ELEMENTS//
