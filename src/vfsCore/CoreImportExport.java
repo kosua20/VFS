@@ -68,6 +68,7 @@ public class CoreImportExport {
 	/**
 	 * imports a folder, and its files and sub-folders to the root of the VFS disk, preserving the hierarchy
 	 * @param folderToAdd a java.io.File element corresponding to the folder
+	 * @param name the name of the folder on the VFS disk
 	 * @return a Folder (subclass of Hierarchy) corresponding to the imported folder
 	 * @throws IOException
 	 * @throws FileNotFoundException

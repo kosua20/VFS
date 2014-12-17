@@ -38,7 +38,6 @@ public class SizeVisitor implements Visitor{
 	public void visit(vfsCore.File file) {
 		//We use the size store in the File element
 		sizeUsed = sizeUsed + file.getSize();
-		
 	}
 	
 	/**

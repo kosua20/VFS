@@ -76,7 +76,7 @@ public class vfsCommandLine {
 						break;	
 				}
 			} catch (ExecutionErrorException e){
-				System.out.println("The VFS Core encountered an error.");
+				//System.out.println("The VFS Core encountered an error.");
 				e.printStackTrace();
 			} catch (SyntaxException e){
 				System.out.println("Wrong syntax");
@@ -179,16 +179,20 @@ public class vfsCommandLine {
 	}
 
 	private void impvfs(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
 		if (core == null){ throw new CoreNotInitalisedException();}
-		
+		if (args.length != 3){ throw new SyntaxException();}
+		if(!core.importElement(args[1], args[2])){
+			throw new ExecutionErrorException();
+		}
 		
 	}
 	
 	private void expvfs(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
 		if (core == null){ throw new CoreNotInitalisedException();}
-		
+		if (args.length != 3){ throw new SyntaxException();}
+		if(!core.exportElement(args[1], args[2])){
+			throw new ExecutionErrorException();
+		}
 		
 	}
 	

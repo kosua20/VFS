@@ -199,14 +199,13 @@ public class Core {
 	 * lists the elements stored in the current folder, giving the name of each element, its type (file (f) or Folder (F)), and the size of the files in bytes
 	 */
 	public void list(boolean showSizes){
-			String s = "Current: "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
+			String s = "\nCurrent: "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
 			for(Hierarchy child:currentHierarchy.getChildren()){
 				s = s+"- "+child.getName()+" ";
 				String size = " ";
 				if (showSizes){
 					SizeVisitor sv = new SizeVisitor();
 					sv.visit(child);
-					System.out.println(sv.getSizeUsed());
 					size = size + sv.getSizeUsed()+"B";
 				}
 				if (child instanceof vfsCore.File){
@@ -325,7 +324,7 @@ public class Core {
 	/**
 	 * imports an element from the host file system. For now, this method copy an element from the project directory to the root of the VFS
 	 * @param homePath the name of the element on the host disk
-	 * @param VFSPath the name of the element on the vfs
+	 * @param VFSPath the path of the folder where to import the element
 	 * @return  true if the operation is successful
 	 */
 	public boolean importElement(String homePath, String VFSPath) {
@@ -336,49 +335,60 @@ public class Core {
 		}
 		//Check if the file exists on the host
 		if (fileToAdd.exists()){
-			if (fileToAdd.isFile()){
-				//It's a file
-				//Checking its size against the available space on the vfs disk
-				if (getFreeSpace()<=fileToAdd.length()){
-					System.out.println("Not enough available space !");
+			try {
+				//We find the destination folder
+				Hierarchy destination = fullHierarchy.findChild(VFSPath);
+				if (destination instanceof vfsCore.File){
+					System.out.println("Please specify a *folder* as destination");
 					return false;
 				}
-				try {
-					//We import it
-					vfsCore.File hFile = cie.importFile(fileToAdd, VFSPath);
-					//For now, we add it to the root
-					fullHierarchy.addChild(hFile);
-					//And we save the modified Hierarchy
-					return saveFullHierarchyToFile();
-				} catch (FileNotFoundException e){
-					System.out.println("File not found !");
-					return false;
-				} catch (IOException e){
-					System.out.println("Error in the CoreIO");
-					return false;
+				//Now we are sure the destination is a folder
+				if (fileToAdd.isFile()){
+					//It's a file
+					//Checking its size against the available space on the vfs disk
+					if (getFreeSpace()<=fileToAdd.length()){
+						System.out.println("Not enough available space !");
+						return false;
+					}
+					try {
+						//We import it
+						vfsCore.File hFile = cie.importFile(fileToAdd, fileToAdd.getName());
+						//For now, we add it to the root
+						((Folder)destination).addChild(hFile);
+						//And we save the modified Hierarchy
+						return saveFullHierarchyToFile();
+					} catch (FileNotFoundException e){
+						System.out.println("File not found !");
+						return false;
+					} catch (IOException e){
+						System.out.println("Error in the CoreIO");
+						return false;
+					}
+				} else {
+					//It's a folder
+					//Checking its size against the available space on the vfs disk
+					if (getFreeSpace()<=cio.sizeOfFolder(fileToAdd)){
+						System.out.println("Not enough available space !");
+						return false;
+					}
+					try {
+						//We import it
+						vfsCore.Folder hFolder = cie.importFolder(fileToAdd, fileToAdd.getName());
+						//For now, we add them to the root
+						((Folder)destination).addChild(hFolder);
+						//And we save the modified Hierarchy
+						return saveFullHierarchyToFile();
+					} catch (FileNotFoundException e){
+						System.out.println("Folder not found !");
+						return false;
+					} catch (IOException e){
+						System.out.println("Error in the CoreIO");
+						return false;
+					}
 				}
-			} else {
-				//It's a folder
-				//Checking its size against the available space on the vfs disk
-				if (getFreeSpace()<=cio.sizeOfFolder(fileToAdd)){
-					System.out.println("Not enough available space !");
-					return false;
-				}
-				try {
-					//We import it
-					vfsCore.Folder hFolder = cie.importFolder(fileToAdd, VFSPath);
-					System.out.println("Folder name :"+hFolder.getName());
-					//For now, we add them to the root
-					fullHierarchy.addChild(hFolder);
-					//And we save the modified Hierarchy
-					return saveFullHierarchyToFile();
-				} catch (FileNotFoundException e){
-					System.out.println("Folder not found !");
-					return false;
-				} catch (IOException e){
-					System.out.println("Error in the CoreIO");
-					return false;
-				}
+			} catch (fileNotFound e1) {
+				System.out.println("The folder doesn't exist");
+				return false;
 			}
 		} else {
 			System.out.println("The element doesn't exists");
@@ -401,9 +411,9 @@ public class Core {
 			//We find the pointer to the Hierarchy element at the given VFSPath
 			Hierarchy origin = ((Folder)fullHierarchy).findChild(VFSPath);
 			if (origin instanceof vfsCore.File){
-				return cie.exportFile((vfsCore.File)origin, homePath);
+				return cie.exportFile((vfsCore.File)origin, homePath+File.separator+origin.getName());
 			} else {
-				return cie.exportFolder((Folder)origin, homePath);
+				return cie.exportFolder((Folder)origin, homePath+File.separator+origin.getName());
 			}
 		} catch (fileNotFound e) {
 			System.out.println("The file doesn't exist");
@@ -686,7 +696,6 @@ public class Core {
 	
 	public void printSearch(String search){
 		ArrayList<Hierarchy> results = searchFile(search);
-		
 		if (results.isEmpty()){
 			System.out.println("No file found.");
 		} else {
