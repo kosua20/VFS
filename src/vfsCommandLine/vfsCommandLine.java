@@ -115,7 +115,17 @@ public class vfsCommandLine {
 	}
 
 	private void cd(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=3){throw new SyntaxException();}
+		switch (args[1]){
+		case ".":
+			break;
+		case "..":
+			core.goToParent();
+			break;
+		default :
+			core.goTo(args[1]);
+		}
 		
 	}
 
@@ -130,12 +140,16 @@ public class vfsCommandLine {
 	}
 	
 	private void rm(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=3){throw new SyntaxException();}
+		core.deleteElementAtPath(args[1]);
 		
 	}
 	
 	private void free(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=3){throw new SyntaxException();}
+		core.getFreeSpace();
 		
 	}
 	
@@ -199,6 +213,6 @@ public class vfsCommandLine {
 	}
 	
 	public void displayHelp(){
-		System.out.println("———————————————Managing VFS disks———————————————\ncrvfs <vfspath> <dim>\t\tcreate a new VFS disk at the specified path and with size dim (in kB)\nopvfs <vfspath>\t\t\topen the existing VFS disk at the specified path\nrmvfs <vfspath>\t\t\tdelete the existing VFS disk at the specified path\n———————————————Using the VFS disk———————————————\nls <args> <pathname>\t\tlist the content of the folder at the specified path in the VFS, if args=‘-l’ displays the size of each element too\ncd <pathname>\t\t\tchange current directory on the VFS, ‘cd ..’ goes to the parent directory\nmv <oldpath> <newpath>\t\tmove the element at path oldpath to newpath (name included)\ncp <sourcepath> <targetpath>\tcopy the element at path sourcepath to targetpath (name included)\nrm <pathname>\t\t\tremove the element at the specified path on the VFS\nfree\t\t\t\tdisplay the total size, used space and free space available on the VFS disk\nfind <filename>\t\t\tfind elements in the VFS with the corresponding name, and displays their paths\n————————————Exporting and importing————————————-\nimpvfs <hostpath> <vfspath>\timport the elements located at the specified path on the host into the VFS, at the specified path\nexpvfs <vfspath> <hostpath>\texport the elements located at the specified path on the VFS to the host, at the specified path");
+		System.out.println("���������������������������������������������Managing VFS disks���������������������������������������������\ncrvfs <vfspath> <dim>\t\tcreate a new VFS disk at the specified path and with size dim (in kB)\nopvfs <vfspath>\t\t\topen the existing VFS disk at the specified path\nrmvfs <vfspath>\t\t\tdelete the existing VFS disk at the specified path\n���������������������������������������������Using the VFS disk���������������������������������������������\nls <args> <pathname>\t\tlist the content of the folder at the specified path in the VFS, if args=���-l��� displays the size of each element too\ncd <pathname>\t\t\tchange current directory on the VFS, ���cd ..��� goes to the parent directory\nmv <oldpath> <newpath>\t\tmove the element at path oldpath to newpath (name included)\ncp <sourcepath> <targetpath>\tcopy the element at path sourcepath to targetpath (name included)\nrm <pathname>\t\t\tremove the element at the specified path on the VFS\nfree\t\t\t\tdisplay the total size, used space and free space available on the VFS disk\nfind <filename>\t\t\tfind elements in the VFS with the corresponding name, and displays their paths\n������������������������������������Exporting and importing������������������������������������-\nimpvfs <hostpath> <vfspath>\timport the elements located at the specified path on the host into the VFS, at the specified path\nexpvfs <vfspath> <hostpath>\texport the elements located at the specified path on the VFS to the host, at the specified path");
 	}
 }

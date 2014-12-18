@@ -643,7 +643,7 @@ public class Core {
 				toBeMoved.setName(newName);
 				return saveFullHierarchyToFile();
 			}else{
-				throw new BadPathInstanceException("attention vous essayer de copier un element dans un fichier !!");
+				throw new BadPathInstanceException("attention vous essayer de deplacer un element dans un fichier !!");
 			}
 		} catch (fileNotFound e) {
 			System.out.println("Le fichier n'existe pas");
