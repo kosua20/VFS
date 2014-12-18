@@ -1,4 +1,6 @@
 package vfsCommandLine;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import vfsCore.*;
@@ -7,6 +9,7 @@ public class vfsCommandLine {
 	 * Keeps reference to the currently opened disk, via its Core instance.
 	 */
 	private Core core = null;
+	private Map<String, Core> openCores = new HashMap<>();
 	
 	public static void main(String[] args){
 		vfsCommandLine vfsCL = new vfsCommandLine();
@@ -177,8 +180,10 @@ public class vfsCommandLine {
 	 */
 	public void crvfs(String[] args) throws SyntaxException, ExecutionErrorException{
 		if (args.length != 3){throw new SyntaxException();}
-		core = new Core();
+		Core newCore = new Core();
 		if(core.createDisk(args[1], Long.valueOf(args[2]))){
+			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)), newCore);
+			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been created.");
 		} else {
 			throw new ExecutionErrorException();
@@ -193,8 +198,10 @@ public class vfsCommandLine {
 	 */
 	public void rmvfs(String[] args) throws ExecutionErrorException, SyntaxException{
 		if (args.length != 2){throw new SyntaxException();}
-		core = new Core();
+		Core newCore = new Core();
 		if(core.deleteDisk(args[1])){
+			//We also remove the maybe existing Core dedicated to this disk in the openCores list
+			openCores.remove(args[1].substring(args[1].lastIndexOf(java.io.File.separator)));
 			System.out.println("VFS "+core.getDiskpath()+" has been deleted.");
 		}  else {
 			throw new ExecutionErrorException();
@@ -210,8 +217,11 @@ public class vfsCommandLine {
 	 */
 	public void opvfs(String[] args) throws ExecutionErrorException, SyntaxException{
 		if (args.length != 2){ throw new SyntaxException();}
-		core = new Core();
+		Core newCore = new Core();
 		if(core.openDisk(args[1])){
+			//put either create a new (key,value) or replace the previous Core dedicated to this disk
+			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)), newCore);
+			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been opened.");
 		}  else {
 			throw new ExecutionErrorException();
