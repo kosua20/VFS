@@ -128,7 +128,7 @@ public class vfsCommandLine {
 
 	private void cd(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
-		if(args.length!=3){throw new SyntaxException();}
+		if(args.length!=2){throw new SyntaxException();}
 		switch (args[1]){
 		case ".":
 			break;
@@ -153,14 +153,14 @@ public class vfsCommandLine {
 	
 	private void rm(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
-		if(args.length!=3){throw new SyntaxException();}
+		if(args.length!=2){throw new SyntaxException();}
 		core.deleteElementAtPath(args[1]);
 		
 	}
 	
 	private void free(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
-		if(args.length!=3){throw new SyntaxException();}
+		if(args.length!=1){throw new SyntaxException();}
 		core.getFreeSpace();
 		
 	}
@@ -176,9 +176,7 @@ public class vfsCommandLine {
 	 * @throws ExecutionErrorException
 	 */
 	public void crvfs(String[] args) throws SyntaxException, ExecutionErrorException{
-		if (args.length != 3){
-			throw new SyntaxException();
-		}
+		if (args.length != 3){throw new SyntaxException();}
 		core = new Core();
 		if(core.createDisk(args[1], Long.valueOf(args[2]))){
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been created.");
@@ -194,9 +192,7 @@ public class vfsCommandLine {
 	 * @throws SyntaxException
 	 */
 	public void rmvfs(String[] args) throws ExecutionErrorException, SyntaxException{
-		if (args.length != 2){
-			throw new SyntaxException();
-		}
+		if (args.length != 2){throw new SyntaxException();}
 		core = new Core();
 		if(core.deleteDisk(args[1])){
 			System.out.println("VFS "+core.getDiskpath()+" has been deleted.");
@@ -213,9 +209,7 @@ public class vfsCommandLine {
 	 * @throws SyntaxException
 	 */
 	public void opvfs(String[] args) throws ExecutionErrorException, SyntaxException{
-		if (args.length != 2){
-			throw new SyntaxException();
-		}
+		if (args.length != 2){ throw new SyntaxException();}
 		core = new Core();
 		if(core.openDisk(args[1])){
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been opened.");
