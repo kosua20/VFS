@@ -2,9 +2,6 @@ package vfsCommandLine;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
-import org.junit.experimental.max.MaxCore;
-
 import vfsCore.*;
 public class vfsCommandLine {
 	/**
