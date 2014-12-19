@@ -89,7 +89,9 @@ public class Core {
 	public boolean openDisk(String filePath) {
 		cio = new CoreIO(filePath);
 		try {
+			
 			fullHierarchy = ((Folder)cio.loadHierarchyTreeFromFile());
+			
 			currentHierarchy = fullHierarchy;
 			return true;
 		} catch (FileNotFoundException e) {
@@ -198,7 +200,7 @@ public class Core {
 	 * lists the elements stored in the current folder, giving the name of each element, its type (file (f) or Folder (F)), and the size of the files in bytes
 	 */
 	public void list(boolean showSizes){
-			String s = "\nCurrent: "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
+			String s = "\nVFS "+cio.getDiskName()+"\n> "+(currentHierarchy.getName().equals("")?"root":currentHierarchy.getName())+"\n";
 			for(Hierarchy child:currentHierarchy.getChildren()){
 				s = s+"- "+child.getName()+" ";
 				String size = " ";

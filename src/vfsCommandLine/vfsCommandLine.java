@@ -3,6 +3,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.junit.experimental.max.MaxCore;
+
 import vfsCore.*;
 public class vfsCommandLine {
 	/**
@@ -34,14 +36,31 @@ public class vfsCommandLine {
 			
 			//Else, string treatment, we split using a regex to avoid splitting escaped spaces in paths
 			String[] arguments = input.split("(?<!\\\\)\\s");
+			//Checking the validity before using the result of the split
+			if (arguments.length < 2){ System.out.println("Unknown command");continue clLoop;}
 			//We then restore each argument, replacing the escaped characters by their originals
 			for(int i = 1;i<arguments.length;i++){
 				arguments[i] = arguments[i].replaceAll("\\\\\\s", " ");
 			}
-			//Checking the validity before using the result of the split
-			if (arguments.length == 0){ continue clLoop;}
-			
 			try{
+			String[] arguments1 = arguments;
+			if (!arguments[0].equals("crvfs") && !arguments[0].equals("opvfs") && !arguments[0].equals("rmvfs") && !arguments[0].equals("help")){
+				arguments1 = new String[arguments.length - 1];
+				arguments1[0] = arguments[0];
+				for(int i =2;i<arguments.length;i++){
+						arguments1[i-1] = arguments[i];
+				}
+				
+				core = openCores.get(arguments[1].substring(arguments[1].lastIndexOf(java.io.File.separator)+1));
+				
+				if (core == null){
+					String[] arguments2 = {arguments[0],arguments[1]};
+					opvfs(arguments2);
+					
+				}
+			}
+			
+			
 				//Main switch
 				switch(arguments[0]){
 					case "crvfs":
@@ -57,39 +76,39 @@ public class vfsCommandLine {
 						displayHelp();
 						break;
 					case "ls":
-						ls(arguments);
+						ls(arguments1);
 						break;
 					case "cd":
-						cd(arguments);
+						cd(arguments1);
 						break;
 					case "cp":
-						cp(arguments);
+						cp(arguments1);
 						break;
 					case "mv":
-						mv(arguments);
+						mv(arguments1);
 						break;
 					case "rm":
-						rm(arguments);
+						rm(arguments1);
 						break;
 					case "free":
-						free(arguments);
+						free(arguments1);
 						break;
 					case "find":
-						find(arguments);
+						find(arguments1);
 						break;
 					case "impvfs":
-						impvfs(arguments);
+						impvfs(arguments1);
 						break;
 					case "expvfs":
-						expvfs(arguments);
+						expvfs(arguments1);
 						break;
 					default:
 						System.out.println("Command unknown");
 						break;	
 				}
 			} catch (ExecutionErrorException e){
-				//System.out.println("The VFS Core encountered an error.");
-				e.printStackTrace();
+				
+				//e.printStackTrace();
 			} catch (SyntaxException e){
 				System.out.println("Wrong syntax");
 			} catch (CoreNotInitalisedException e){
@@ -181,8 +200,11 @@ public class vfsCommandLine {
 	public void crvfs(String[] args) throws SyntaxException, ExecutionErrorException{
 		if (args.length != 3){throw new SyntaxException();}
 		Core newCore = new Core();
+		core = newCore;
 		if(core.createDisk(args[1], Long.valueOf(args[2]))){
-			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)), newCore);
+			//We add the Core to the list of opened cores
+			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)+1), newCore);
+			//We set the current core to the new one
 			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been created.");
 		} else {
@@ -199,13 +221,15 @@ public class vfsCommandLine {
 	public void rmvfs(String[] args) throws ExecutionErrorException, SyntaxException{
 		if (args.length != 2){throw new SyntaxException();}
 		Core newCore = new Core();
+		core = newCore;
 		if(core.deleteDisk(args[1])){
 			//We also remove the maybe existing Core dedicated to this disk in the openCores list
-			openCores.remove(args[1].substring(args[1].lastIndexOf(java.io.File.separator)));
+			openCores.remove(args[1].substring(args[1].lastIndexOf(java.io.File.separator)+1));
 			System.out.println("VFS "+core.getDiskpath()+" has been deleted.");
 		}  else {
 			throw new ExecutionErrorException();
 		}
+		//We set the current core to null
 		core = null;
 	}
 	
@@ -218,9 +242,10 @@ public class vfsCommandLine {
 	public void opvfs(String[] args) throws ExecutionErrorException, SyntaxException{
 		if (args.length != 2){ throw new SyntaxException();}
 		Core newCore = new Core();
+		core = newCore;
 		if(core.openDisk(args[1])){
 			//put either create a new (key,value) or replace the previous Core dedicated to this disk
-			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)), newCore);
+			openCores.put(args[1].substring(args[1].lastIndexOf(java.io.File.separator)+1), newCore);
 			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been opened.");
 		}  else {
@@ -263,6 +288,6 @@ public class vfsCommandLine {
 	 * display a useful list of commands, detailed with their arguments
 	 */
 	public void displayHelp(){
-		System.out.println("���������������������������������������������Managing VFS disks���������������������������������������������\ncrvfs <vfspath> <dim>\t\tcreate a new VFS disk at the specified path and with size dim (in kB)\nopvfs <vfspath>\t\t\topen the existing VFS disk at the specified path\nrmvfs <vfspath>\t\t\tdelete the existing VFS disk at the specified path\n���������������������������������������������Using the VFS disk���������������������������������������������\nls <args> <pathname>\t\tlist the content of the folder at the specified path in the VFS, if args=���-l��� displays the size of each element too\ncd <pathname>\t\t\tchange current directory on the VFS, ���cd ..��� goes to the parent directory\nmv <oldpath> <newpath>\t\tmove the element at path oldpath to newpath (name included)\ncp <sourcepath> <targetpath>\tcopy the element at path sourcepath to targetpath (name included)\nrm <pathname>\t\t\tremove the element at the specified path on the VFS\nfree\t\t\t\tdisplay the total size, used space and free space available on the VFS disk\nfind <filename>\t\t\tfind elements in the VFS with the corresponding name, and displays their paths\n������������������������������������Exporting and importing������������������������������������-\nimpvfs <hostpath> <vfspath>\timport the elements located at the specified path on the host into the VFS, at the specified path\nexpvfs <vfspath> <hostpath>\texport the elements located at the specified path on the VFS to the host, at the specified path");
+		System.out.println("--------------------------Managing VFS disks--------------------------\ncrvfs <vfspath> <dim>\t\tcreate a new VFS disk at the specified path and with size dim (in kB)\nopvfs <vfspath>\t\t\topen the existing VFS disk at the specified path\nrmvfs <vfspath>\t\t\tdelete the existing VFS disk at the specified path\n--------------------------Using the VFS disk--------------------------\nls <args> <pathname>\t\tlist the content of the folder at the specified path in the VFS, if args='-l' displays the size of each element too\ncd <pathname>\t\t\tchange current directory on the VFS, 'cd ..' goes to the parent directory\nmv <oldpath> <newpath>\t\tmove the element at path oldpath to newpath (name included)\ncp <sourcepath> <targetpath>\tcopy the element at path sourcepath to targetpath (name included)\nrm <pathname>\t\t\tremove the element at the specified path on the VFS\nfree\t\t\t\tdisplay the total size, used space and free space available on the VFS disk\nfind <filename>\t\t\tfind elements in the VFS with the corresponding name, and displays their paths\n--------------------------Exporting and importing---------------------------\nimpvfs <hostpath> <vfspath>\timport the elements located at the specified path on the host into the VFS, at the specified path\nexpvfs <vfspath> <hostpath>\texport the elements located at the specified path on the VFS to the host, at the specified path");
 	}
 }
