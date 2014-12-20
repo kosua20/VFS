@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 import vfsCore.*;
-import vfsCore.visitors.SearchVisitor;
 public class vfsCommandLine {
 	/**
 	 * Keeps reference to the currently opened disk, via its Core instance.
@@ -243,14 +242,17 @@ public class vfsCommandLine {
 	/**
 	 * to search if a file named filename is stored in the VFS named in argument, 
 	 * shall return the absolute path of the sought file if it is present in the VFS, null otherwise
-	 * This search action will be done by using the implemented visitor pattern
+	 * This search action will be done by using the implemented visitor pattern in the method Search of the core
+	 * and return the name, the size and the path
 	 * @param args
 	 * @throws ExecutionErrorException
 	 * @throws SyntaxException
 	 * @throws CoreNotInitalisedException
 	 */
 	private void find(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		SearchVisitor visitor = new SearchVisitor(args[2]);
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=2){throw new SyntaxException();}
+		core.printSearch(args[2]);
 		
 	}
 
