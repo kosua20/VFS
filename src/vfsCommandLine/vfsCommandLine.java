@@ -10,6 +10,9 @@ import vfsCore.*;
  * @author Simon Rodriguez
  *
  */
+
+//Please note that the main entry is the MainCommandLine class
+
 public class vfsCommandLine {
 	/**
 	 * Keeps reference to the currently opened disk, via its Core instance.
