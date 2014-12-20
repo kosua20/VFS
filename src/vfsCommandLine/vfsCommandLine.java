@@ -2,19 +2,24 @@ package vfsCommandLine;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
 import vfsCore.*;
+
+/**
+ * The VFS Command Line provides a way to interact with the VFS Core and VFS disks through a simple command-line interface. 
+ * It can manage multiple VFS disks, create and delete them, and manage the files and folders contained inside.
+ * @author Simon Rodriguez
+ *
+ */
 public class vfsCommandLine {
 	/**
 	 * Keeps reference to the currently opened disk, via its Core instance.
 	 */
 	private Core core = null;
+	/**
+	 * Act as a list of opened VFS disks and their associated cores
+	 */
 	private Map<String, Core> openCores = new HashMap<>();
 	
-	public static void main(String[] args){
-		vfsCommandLine vfsCL = new vfsCommandLine();
-		vfsCL.mainLoop();
-	}
 	
 	/**
 	 * Executes the main loop of the Command-Line
@@ -52,7 +57,7 @@ public class vfsCommandLine {
 				/*This part is dedicated to finding the correct core for managing the VFS disk passed in arguments, or else initializing it
 				First, if the command is not a command where we don't need a specifically initialized core (help + those about the VFS disks themselves), 
 				we have to deal with it*/
-				if (arguments.length>1&&!arguments[0].equals("crvfs") && !arguments[0].equals("opvfs") && !arguments[0].equals("rmvfs")){
+				if (arguments.length>1&&!arguments[0].equals("crvfs") && !arguments[0].equals("opvfs") && !arguments[0].equals("clvfs") && !arguments[0].equals("rmvfs")){
 					//We search in the HashMap if a core with the same name exists
 					core = openCores.get(arguments[1]);
 					//If the core doesn't exist, the openCores.get() method returns null
@@ -73,6 +78,9 @@ public class vfsCommandLine {
 						break;
 					case "opvfs":
 						opvfs(arguments);
+						break;
+					case "clvfs":
+						lvvfs(arguments);
 						break;
 					case "help":
 						displayHelp();
@@ -109,7 +117,7 @@ public class vfsCommandLine {
 						break;	
 				}
 			} catch (ExecutionErrorException e){
-				
+				//here we do nothing, as the error message fwill be directly displayed by the VFS Core.
 				//e.printStackTrace();
 			} catch (SyntaxException e){
 				System.out.println("Wrong syntax");
@@ -260,13 +268,13 @@ public class vfsCommandLine {
 	 * @throws SyntaxException
 	 * @throws ExecutionErrorException
 	 */
-	public void crvfs(String[] args) throws SyntaxException, ExecutionErrorException{
-		if (args.length != 4){throw new SyntaxException();}
+	private void crvfs(String[] args) throws SyntaxException, ExecutionErrorException{
+		if (args.length != 3){throw new SyntaxException();}
 		Core newCore = new Core();
 		core = newCore;
-		if(core.createDisk(args[2], Long.valueOf(args[3]))){
+		if(core.createDisk(args[1], Long.valueOf(args[2]))){
 			//We add the Core to the list of opened cores
-			openCores.put(args[2], newCore);
+			openCores.put(args[1], newCore);
 			//We set the current core to the new one
 			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been created.");
@@ -281,13 +289,13 @@ public class vfsCommandLine {
 	 * @throws ExecutionErrorException
 	 * @throws SyntaxException
 	 */
-	public void rmvfs(String[] args) throws ExecutionErrorException, SyntaxException{
-		if (args.length != 3){throw new SyntaxException();}
+	private void rmvfs(String[] args) throws ExecutionErrorException, SyntaxException{
+		if (args.length != 2){throw new SyntaxException();}
 		Core newCore = new Core();
 		core = newCore;
-		if(core.deleteDisk(args[2])){
+		if(core.deleteDisk(args[1])){
 			//We also remove the maybe existing Core dedicated to this disk in the openCores list
-			openCores.remove(args[2]);
+			openCores.remove(args[1]);
 			System.out.println("VFS "+core.getDiskpath()+" has been deleted.");
 		}  else {
 			throw new ExecutionErrorException();
@@ -302,17 +310,31 @@ public class vfsCommandLine {
 	 * @throws ExecutionErrorException
 	 * @throws SyntaxException
 	 */
-	public void opvfs(String[] args) throws ExecutionErrorException, SyntaxException{
-		if (args.length != 3){ throw new SyntaxException();}
+	private void opvfs(String[] args) throws ExecutionErrorException, SyntaxException{
+		if (args.length != 2){ throw new SyntaxException();}
 		Core newCore = new Core();
 		core = newCore;
-		if(core.openDisk(args[2])){
+		if(core.openDisk(args[1])){
 			//put either create a new (key,value) or replace the previous Core dedicated to this disk
-			openCores.put(args[2], newCore);
+			openCores.put(args[1], newCore);
 			core = newCore;
 			System.out.println("VFS "+core.getDiskpath()+" ("+core.getTotalSpace()+"B size) has been opened.");
 		}  else {
 			throw new ExecutionErrorException();
+		}
+	}
+	
+	/**
+	 * close an opened VFS, removing it from the list of opened cores, and removing it if it is the current used core.
+	 * @param args the passed arguments
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 */
+	private void lvvfs(String[] args) throws SyntaxException {
+		if (args.length != 2){throw new SyntaxException();}
+		Core closed = openCores.remove(args[1]);
+		if (core.equals(closed) && !(core ==null)){
+			core = null;
 		}
 	}
 
@@ -329,6 +351,7 @@ public class vfsCommandLine {
 		if(!core.importElement(args[2], args[3])){
 			throw new ExecutionErrorException();
 		}
+		System.out.println("Import successful !");
 		
 	}
 	
@@ -345,15 +368,17 @@ public class vfsCommandLine {
 		if(!core.exportElement(args[2], args[3])){
 			throw new ExecutionErrorException();
 		}
+		System.out.println("Export successful !");
 	}
 	
 	/**
 	 * display a useful list of commands, detailed with their arguments
 	 */
-	public void displayHelp(){
+	private void displayHelp(){
 		System.out.println("--------------------------Managing VFS disks--------------------------\n"
 				+ "crvfs <vfsname> <dim>\t\t\tcreate a new VFS disk with the specified name and size (in kB)\n"
 				+ "opvfs <vfname>\t\t\t\topen the existing VFS disk with the specified name\n"
+				+ "lvvfs <vfname>\t\t\t\tclose the specified VFS if it is opened\n"
 				+ "rmvfs <vfsname>\t\t\t\tdelete the existing VFS disk with the specified name\n"
 				+ "--------------------------Using the VFS disk--------------------------\n"
 				+ "ls <vfsname> <args> <pathname>\t\tlist the content of the folder at the specified path in the VFS, if args='-l' displays the size of each element too\n"

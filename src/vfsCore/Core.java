@@ -63,7 +63,7 @@ public class Core {
 				currentHierarchy = fullHierarchy;
 				return saveFullHierarchyToFile();
 			} catch (FileNotFoundException e) {
-				System.out.println("The file doesn't exist");
+				System.out.println("Error with the file, maybe its name is already used");
 				return false;
 			} catch (IOException e) {
 				System.out.println("Error with the CoreIO");
@@ -340,6 +340,9 @@ public class Core {
 				//First we split the destination path to extract the parent folder and the new name of the element
 				String path = VFSPath.substring(0, VFSPath.lastIndexOf(File.separator));
 				String newName = VFSPath.substring(VFSPath.lastIndexOf(File.separator)+1);
+				if (newName.equalsIgnoreCase("")){
+					newName = fileToAdd.getName();
+				}
 				//We find the destination folder
 				Hierarchy destination = fullHierarchy.findChild(path);
 				if (destination instanceof vfsCore.File){

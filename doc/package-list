@@ -1,3 +1,5 @@
+vfsCommandLine
 vfsCore
+vfsCore.Compressor
 vfsCore.exceptions
 vfsCore.visitors
