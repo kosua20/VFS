@@ -234,9 +234,7 @@ public class vfsCommandLine {
 		if (core == null){ throw new CoreNotInitalisedException();}
 		if(args.length!=2){throw new SyntaxException();}
 		long space = core.getFreeSpace();
-		System.out.println(space);
-		
-		
+		System.out.println("Free space: "+space+"\t-\tOccupied space: "+core.getUsedSpace()+"\t-\tTotal space: "+core.getTotalSpace());
 	}
 	
 	/**
@@ -251,7 +249,7 @@ public class vfsCommandLine {
 	 */
 	private void find(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
-		if(args.length!=2){throw new SyntaxException();}
+		if(args.length!=3){throw new SyntaxException();}
 		core.printSearch(args[2]);
 		
 	}
