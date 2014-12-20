@@ -2,7 +2,9 @@ package vfsCommandLine;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
 import vfsCore.*;
+import vfsCore.visitors.SearchVisitor;
 public class vfsCommandLine {
 	/**
 	 * Keeps reference to the currently opened disk, via its Core instance.
@@ -148,7 +150,15 @@ public class vfsCommandLine {
 			throw new SyntaxException();
 		}
 	}
-
+	/**
+	 * to change the current position in the VFS
+	 * .. must go to parent
+	 * . represent current directory
+	 * @param args vfsName and path
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void cd(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
 		if(args.length!=3){throw new SyntaxException();}
@@ -163,32 +173,84 @@ public class vfsCommandLine {
 		}
 		
 	}
-
+	
+	/**
+	 * to copy, within the VFS in argument, the content of a file/directory whose absolute name 
+	 * is source path into a target file/directory whose absolute name is the last argument.
+	 * @param args
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void cp(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=3){throw new SyntaxException();}
+		if(!core.copyElementAtPath(args[2], args[3])){
+			throw new ExecutionErrorException();
+		}
 		
 	}
 	
+	/**
+	 * to change the name of a file/directory with absolute name oldpath (args[2)] in the new absolute name newpath (args[3]) 
+	 * of the VFS named vfsname (args[1]).
+	 * @param args
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void mv(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
-		// TODO Auto-generated method stub
+		if (core == null){ throw new CoreNotInitalisedException();}
+		if(args.length!=4){throw new SyntaxException();}
+		if(!core.moveElement(args[2], args[3])){
+			throw new ExecutionErrorException();
+		}
 		
 	}
 	
+	/**
+	 * to remove a file/directory with absolute name pathname (last of 2 arguments) from the VFS passed in argument.
+	 * @param args
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void rm(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
 		if(args.length!=3){throw new SyntaxException();}
-		core.deleteElementAtPath(args[2]);
+		if(!core.deleteElementAtPath(args[2])){
+			throw new ExecutionErrorException();
+		}
 		
 	}
 	
+	/**
+	 * to display the quantity of free/occupied space for VFS named in argument
+	 * @param args
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void free(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
 		if (core == null){ throw new CoreNotInitalisedException();}
 		if(args.length!=2){throw new SyntaxException();}
-		core.getFreeSpace();
+		long space = core.getFreeSpace();
+		System.out.println(space);
+		
 		
 	}
 	
+	/**
+	 * to search if a file named filename is stored in the VFS named in argument, 
+	 * shall return the absolute path of the sought file if it is present in the VFS, null otherwise
+	 * This search action will be done by using the implemented visitor pattern
+	 * @param args
+	 * @throws ExecutionErrorException
+	 * @throws SyntaxException
+	 * @throws CoreNotInitalisedException
+	 */
 	private void find(String[] args) throws ExecutionErrorException, SyntaxException, CoreNotInitalisedException{
+		SearchVisitor visitor = new SearchVisitor(args[2]);
 		
 	}
 
